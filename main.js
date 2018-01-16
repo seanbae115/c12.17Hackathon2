@@ -1,6 +1,12 @@
 //-------------------------------------------------------------------------------
 // start document
 //-------------------------------------------------------------------------------
+/**
+ * code testing spotify API
+ * Create new instance of spotifyApi from the js file...what next??
+ * 
+ * 
+*/
 // var spotifyApi = new SpotifyWebApi();
 
 // spotifyApi.setAccessToken('AQCYrCIDSLYbQSfMRGISNh-VquWKE-P_qF3NyerO3lz25bxRoo_5n00nRrBK3_f9IfjWv1clNHZULfM2')
@@ -19,3 +25,14 @@ $.ajax({
 		console.log(response);
 	}
 })
+
+/**
+* Code to run when document has loaded
+* @function
+*
+*/
+$(document).ready(function() {
+
+});
+//-------------------------------------------------------------------------------
+
