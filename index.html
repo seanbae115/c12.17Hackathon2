@@ -56,6 +56,20 @@
 		    	</div>
   			</div>
 			</div>
+			<div class='eventPopout d-flex flex-row flex-wrap'>
+				<div class='col-4 artistPortrait'>
+					<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+					<div class='text-center caption'>Artist</div>
+				</div>
+				<div class='eventInfo col-8 card-body'>Event Name
+					<div class='eventDate'>01-01-01</div>
+					<div class='eventAddress'>999 Candycane Ln, Some City 99999</div>
+					<div class='eventDistance'>Distance: 100m</div>
+				</div>
+				<div class='col-12' id='map'>
+
+				</div>
+			</div>
 		</div>
 		<div class='row mt-5 artistsRow'>
 			<div class='col-4'>
@@ -86,9 +100,8 @@
 			</div>
 		</div>
 	</div>
-	<div id='map'></div>
-	<!--<script async defer-->
-    <!--src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho&callback=initMap">-->
-    <!--</script>-->
+	<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho&callback=initMap">
+  </script>
 </body>
 </html>
