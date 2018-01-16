@@ -33,9 +33,10 @@
 		</div>
 	</nav>
 	<div class='container-fluid artistContainer d-flex flex-column'>
-		<div class='row mt-5 artistsRow accordion' role='tablist'>
+		<div class='row mt-3 artistsRow accordion' role='tablist'>
 			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+				<img class="rounded-circle img-responsive w-100 circleBorder"
+						src="assets/images/logic-profile.jpg">
 				<div class='text-center caption'>Artist</div>
 			</div>
 			<div class='col-4'>
@@ -48,44 +49,60 @@
 					<div class='text-center caption'>Artist</div>
 				</a>
 			</div>
-			<div class='col-12 w-100 artistInfo'>
-	    	<div id="collapseOne" class="collapse hide w-100" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-		      <div class="card-body w-100">
-							<div class=><i class="fa fa-calendar" aria-hidden="true"></i>  Date</div>
-							<div class=><i class="fa fa-calendar" aria-hidden="true"></i>  Date</div>
-		    	</div>
-  			</div>
+			<div class='col-12 artistInfo'>
+				<div id="collapseOne" class="collapse hide" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+				  <div class="card-body">
+					  <div class="row mt-3">
+						  <div class="col-12">
+							  <div class="row">
+								  <div class="col-3"><i class="fa fa-calendar" aria-hidden="true"></i>
+									  Date</div>
+								  <div class="col-9 venueName">This is the name of the venue</div>
+							  </div>
+						  </div>
+
+						  <div class="col-12"><i class="fa fa-calendar" aria-hidden="true"></i>
+							  Date</div>
+					  </div>
+					  <hr>
+					  <div class="row mt-3 relatedArtistRow">
+						  <div class='col-3'>
+							  <a data-toggle="collapse" href="#collapseOne">
+								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+								  <div class='text-center caption'>Artist</div>
+							  </a>
+						  </div>
+						  <div class='col-3'>
+							  <a data-toggle="collapse" href="#collapseOne">
+								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+								  <div class='text-center caption'>Artist</div>
+							  </a>
+						  </div>
+						  <div class='col-3'>
+							  <a data-toggle="collapse" href="#collapseOne">
+								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+								  <div class='text-center caption'>Artist</div>
+							  </a>
+						  </div>
+						  <div class='col-3'>
+							  <a data-toggle="collapse" href="#collapseOne">
+								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+								  <div class='text-center caption'>Artist</div>
+							  </a>
+						  </div>
+					  </div>
+				  </div>
+				</div>
 			</div>
 		</div>
-		<div class='row mt-5 artistsRow'>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-		</div>
-		<div class='row mt-5 artistsRow'>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
+		<div class='row mt-5 artistsRow accordion' role='tablist'>
 			<div class='col-4'>
 				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
 				<div class='text-center caption'>Artist</div>
 			</div>
 		</div>
 	</div>
+
 	<div id='map'></div>
 	<!--<script async defer-->
     <!--src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho&callback=initMap">-->
