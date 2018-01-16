@@ -4,8 +4,8 @@
 /**
  * code testing spotify API
  * Create new instance of spotifyApi from the js file...what next??
- * 
- * 
+ *
+ *
 */
 // var spotifyApi = new SpotifyWebApi();
 
@@ -15,6 +15,7 @@
 //   if (err) console.error(err);
 //   else console.log('Artist albums', data);
 // });
+
 /**
  * Spotify ajax call
  * 
@@ -31,6 +32,7 @@
 // 		console.log(response);
 // 	}
 // })
+
 //-------------------------------------------------------------------------------
 
 /**
@@ -41,6 +43,20 @@
 $(document).ready(function() {
 
 });
+let map;
+function initMap() {
+	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
+	map = new google.maps.Map(document.getElementById('map'),{
+		center:mapCenter,
+		zoom: 12,
+	});
+	var marker = new google.maps.Marker({
+          position: mapCenter,
+          map: map
+  });
+}
+
+//-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 /**
  * ajax call for TicketMaster local search
@@ -90,3 +106,4 @@ function getEventInfo(eventID){
 	})
 }
 //-------------------------------------------------------------------------------
+
