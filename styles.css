@@ -27,6 +27,8 @@ hr{
   flex-wrap: wrap;
   display:flex;
 }
+.eventPopoutContainer {
+}
 #map {
   width:90vw;
   height:auto;
@@ -38,4 +40,3 @@ hr{
 .dates{
   font-size: 4vmin;
 }
-
