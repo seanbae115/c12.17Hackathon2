@@ -15,6 +15,13 @@
 //   if (err) console.error(err);
 //   else console.log('Artist albums', data);
 // });
+
+/**
+ * Spotify ajax call
+ * 
+ * 
+ * 
+*/
 // $.ajax({
 // 	method: "GET",
 // 	url: "https://accounts.spotify.com/authorize?client_id=514d4820fc1c42eb9e18c9d9ea28de53&redirect_uri=http:%2F%2Flocalhost:8888%2Fcallback&response_type=token",
@@ -25,6 +32,8 @@
 // 		console.log(response);
 // 	}
 // })
+
+//-------------------------------------------------------------------------------
 
 /**
 * Code to run when document has loaded
@@ -48,3 +57,53 @@ function initMap() {
 }
 
 //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+/**
+ * ajax call for TicketMaster local search
+ * 
+ * 
+ * 
+*/
+$.ajax({
+	method: 'GET',
+	// event: '0900539F0B204F05',
+	// apikey: 'L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
+	url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
+	success:  response => {
+		let prices = response.offers[0].attributes.prices
+		for(let priceInd = 0; priceInd < prices.length; priceInd++){
+			seatPricing.push(prices[priceInd].value);
+		}
+	},
+	error: response => {
+		console.log(response);
+	}
+})
+//-------------------------------------------------------------------------------
+
+/**
+ * ajax call for TicketMaster Event
+ * 
+ * @params {eventID} id of the specific event
+ * 
+*/
+var seatPricing = []; //array of 
+
+function getEventInfo(eventID){
+	.ajax({
+		method: 'GET',
+		// event: 'eventID',
+		url: 'https://app.ticketmaster.com/commerce/v2/events/0900539F0B204F05/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
+		success:  response => {
+			let prices = response.offers[0].attributes.prices
+			for(let priceInd = 0; priceInd < prices.length; priceInd++){
+				seatPricing.push(prices[priceInd].value);
+			}
+		},
+		error: response => {
+			console.log(response);
+		}
+	})
+}
+//-------------------------------------------------------------------------------
+
