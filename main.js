@@ -61,49 +61,46 @@ function initMap() {
 /**
  * ajax call for TicketMaster local search
  * 
- * 
- * 
+ * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
+ * @param {string} artist name
 */
-$.ajax({
-	method: 'GET',
-	// event: '0900539F0B204F05',
-	// apikey: 'L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
-	url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
-	success:  response => {
-		let prices = response.offers[0].attributes.prices
-		for(let priceInd = 0; priceInd < prices.length; priceInd++){
-			seatPricing.push(prices[priceInd].value);
-		}
-	},
-	error: response => {
-		console.log(response);
-	}
-})
-//-------------------------------------------------------------------------------
-
-/**
- * ajax call for TicketMaster Event
- * 
- * @params {eventID} id of the specific event
- * 
-*/
-var seatPricing = []; //array of 
-
-function getEventInfo(eventID){
-	.ajax({
+function getLocalEvents (coordObj, artist) {
+	$.ajax({
 		method: 'GET',
-		// event: 'eventID',
-		url: 'https://app.ticketmaster.com/commerce/v2/events/0900539F0B204F05/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
+		url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=' + latLngObj.lat +','+latLngObj.lng +'&radius=100&unit=miles&keyword='+ artist,
 		success:  response => {
-			let prices = response.offers[0].attributes.prices
-			for(let priceInd = 0; priceInd < prices.length; priceInd++){
-				seatPricing.push(prices[priceInd].value);
-			}
+			console.log(response);
 		},
 		error: response => {
 			console.log(response);
 		}
 	})
-}
+} //function getLocalEvents
+
+//-------------------------------------------------------------------------------
+
+/**
+ * ajax call for TicketMaster Event
+ * 
+ * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
+ * 
+*/
+let seatPricing = null;
+function getEventInfo(eventID){
+	$.ajax({
+		method: 'GET',
+		url: 'https://app.ticketmaster.com/commerce/v2/events/'+ eventID + '/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
+		success:  response => {
+			let prices = [];
+			let objects = response.offers[0].attributes.prices;
+			objects.map( object => prices.push(object.value) );
+			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) )
+			seatPricing = prices
+		},
+		error: response => {
+			console.log(response);
+		}
+	})
+} //function getEventInfo
 //-------------------------------------------------------------------------------
 
