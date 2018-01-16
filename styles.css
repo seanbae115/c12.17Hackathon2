@@ -5,6 +5,7 @@ hr{
   border-color: #4E5257;
 }
 .caption {
+  font-size: 4vmin;
   color: rgba(209, 233, 249, 0.89);
 }
 .card-body {
@@ -33,6 +34,8 @@ hr{
 .circleBorder{
   border: 2px solid;
 }
-.venueName{
+.venueName,
+.dates{
   font-size: 4vmin;
 }
+
