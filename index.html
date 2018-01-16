@@ -21,22 +21,21 @@
 		<div class='collapse navbar-collapse' id='navbarDropdown'>
 			<ul class='navbar-nav mr-auto'>
 				<li class="nav-item">
-        	<a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Current Location</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Stuff</a>
-        </li>
+        	        <a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Current Location</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Stuff</a>
+                </li>
 			</ul>
 		</div>
 	</nav>
 	<div class='container-fluid artistContainer d-flex flex-column'>
 		<div class='row mt-3 artistsRow accordion' role='tablist'>
 			<div class='col-4'>
-				<img class="rounded-circle img-responsive w-100 circleBorder"
-						src="assets/images/logic-profile.jpg">
+				<img class="rounded-circle img-responsive w-100 circleBorder" src="assets/images/logic-profile.jpg">
 				<div class='text-center caption'>Artist</div>
 			</div>
 			<div class='col-4'>
@@ -49,41 +48,23 @@
 					<div class='text-center caption'>Artist</div>
 				</a>
 			</div>
-			<div class='col-12 artistInfo'>
-				<div id="collapseOne" class="collapse hide" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-				  <div class="card-body">
-					  <div class="row mt-3">
-						  <div class="col-12">
-							  <div class="row">
-								  <div class="col-3"><i class="fa fa-calendar" aria-hidden="true"></i>
-									  Date</div>
-								  <div class="col-9 venueName">This is the name of the venue</div>
+		<div class='col-12 artistInfo'>
+			<div id="collapseOne" class="collapse hide" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+			  <div class="card-body">
+				  <div class="row mt-3">
+					  <div class="col-12">
+              	<p class="text-center">Upcoming Concerts</p>
+						  <div class="row">
+							  <div class="col-3 dates"><i class="fa fa-calendar" aria-hidden="true"></i>Date</div>
+							  <div class="col-9 venueName">This is the name of the venue</div>
+                  <div class="col-3 dates"><i class="fa fa-calendar" aria-hidden="true"></i>Date</div>
+                  <div class="col-9 venueName">This is the name of the venue</div>
 							  </div>
 						  </div>
-
-						  <div class="col-12"><i class="fa fa-calendar" aria-hidden="true"></i>
-							  Date</div>
 					  </div>
 					  <hr>
+	          <p class="text-center">Related Artists</p>
 					  <div class="row mt-3 relatedArtistRow">
-						  <div class='col-3'>
-							  <a data-toggle="collapse" href="#collapseOne">
-								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-								  <div class='text-center caption'>Artist</div>
-							  </a>
-						  </div>
-						  <div class='col-3'>
-							  <a data-toggle="collapse" href="#collapseOne">
-								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-								  <div class='text-center caption'>Artist</div>
-							  </a>
-						  </div>
-						  <div class='col-3'>
-							  <a data-toggle="collapse" href="#collapseOne">
-								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-								  <div class='text-center caption'>Artist</div>
-							  </a>
-						  </div>
 						  <div class='col-3'>
 							  <a data-toggle="collapse" href="#collapseOne">
 								  <img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
@@ -101,11 +82,23 @@
 				<div class='text-center caption'>Artist</div>
 			</div>
 		</div>
+		<div class='eventPopoutContainer'>
+			<div class='eventPopout'>
+				<div class='col-4 artistPortrait'>
+					<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+					<div class='text-center caption'>Artist</div>
+				</div>
+				<div class='eventInfo col-8 card-body'>Event Name
+					<div class='eventDate'>01-01-01</div>
+					<div class='eventAddress'>999 Candycane Ln, Some City 99999</div>
+					<div class='eventDistance'>Distance: 100m</div>
+				</div>
+				<div class='col-12' id='map'></div>
+			</div>
+		</div>
 	</div>
-
-	<div id='map'></div>
-	<!--<script async defer-->
-    <!--src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho&callback=initMap">-->
-    <!--</script>-->
+	<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho">
+  </script>
 </body>
 </html>
