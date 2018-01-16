@@ -1,6 +1,9 @@
 body {
   background-color: #4E5257;
 }
+hr{
+  border-color: #4E5257;
+}
 .caption {
   color: rgba(209, 233, 249, 0.89);
 }
@@ -11,4 +14,10 @@ body {
 .artistInfo {
   border: 0;
   padding:0;
+}
+.circleBorder{
+  border: 2px solid;
+}
+.venueName{
+  font-size: 4vmin;
 }
