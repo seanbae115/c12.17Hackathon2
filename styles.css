@@ -1,0 +1,14 @@
+body {
+  background-color: #4E5257;
+}
+.caption {
+  color: rgba(209, 233, 249, 0.89);
+}
+.card-body {
+  color: white;
+  background-color:#232528;
+}
+.artistInfo {
+  border: 0;
+  padding:0;
+}

@@ -7,6 +7,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
 	<script src='main.js'></script>
+	<link rel="stylesheet" href="styles.css">
 	<meta charset="UTF-8">
 	<!-- <meta name="viewport" content="initial-scale=1.0, user-scalable=no"> -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -32,46 +33,56 @@
 		</div>
 	</nav>
 	<div class='container-fluid artistContainer d-flex flex-column'>
-		<div class='row mt-5'>
+		<div class='row mt-5 artistsRow accordion' role='tablist'>
 			<div class='col-4'>
 				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+				<div class='text-center caption'>Artist</div>
 			</div>
 			<div class='col-4'>
 				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+				<div class='text-center caption'>Artist</div>
 			</div>
 			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+				<a data-toggle="collapse" href="#collapseOne">
+					<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+					<div class='text-center caption'>Artist</div>
+				</a>
 			</div>
-		</div>
-		<div class='row mt-5'>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+			<div class='col-12 w-100 artistInfo'>
+	    	<div id="collapseOne" class="collapse hide w-100" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+		      <div class="card-body w-100">
+							<div class=><i class="fa fa-calendar" aria-hidden="true"></i>  Date</div>
+							<div class=><i class="fa fa-calendar" aria-hidden="true"></i>  Date</div>
+		    	</div>
+  			</div>
 			</div>
 		</div>
-		<div class='row mt-5'>
+		<div class='row mt-5 artistsRow'>
 			<div class='col-4'>
 				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+				<div class='text-center caption'>Artist</div>
 			</div>
 			<div class='col-4'>
 				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+				<div class='text-center caption'>Artist</div>
 			</div>
 			<div class='col-4'>
 				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
-				<div class='text-center'>Artist</div>
+				<div class='text-center caption'>Artist</div>
+			</div>
+		</div>
+		<div class='row mt-5 artistsRow'>
+			<div class='col-4'>
+				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+				<div class='text-center caption'>Artist</div>
+			</div>
+			<div class='col-4'>
+				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+				<div class='text-center caption'>Artist</div>
+			</div>
+			<div class='col-4'>
+				<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
+				<div class='text-center caption'>Artist</div>
 			</div>
 		</div>
 	</div>
