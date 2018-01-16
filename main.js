@@ -18,9 +18,9 @@
 
 /**
  * Spotify ajax call
- * 
- * 
- * 
+ *
+ *
+ *
 */
 // $.ajax({
 // 	method: "GET",
@@ -44,7 +44,7 @@ $(document).ready(function() {
 
 });
 let map;
-function initMap() {
+function makeMap() {
 	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
 	map = new google.maps.Map(document.getElementById('map'),{
 		center:mapCenter,
@@ -60,9 +60,9 @@ function initMap() {
 //-------------------------------------------------------------------------------
 /**
  * ajax call for TicketMaster local search
- * 
- * 
- * 
+ *
+ *
+ *
 */
 $.ajax({
 	method: 'GET',
@@ -83,14 +83,14 @@ $.ajax({
 
 /**
  * ajax call for TicketMaster Event
- * 
+ *
  * @params {eventID} id of the specific event
- * 
+ *
 */
-var seatPricing = []; //array of 
+var seatPricing = []; //array of
 
 function getEventInfo(eventID){
-	.ajax({
+	$.ajax({
 		method: 'GET',
 		// event: 'eventID',
 		url: 'https://app.ticketmaster.com/commerce/v2/events/0900539F0B204F05/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
@@ -106,4 +106,3 @@ function getEventInfo(eventID){
 	})
 }
 //-------------------------------------------------------------------------------
-

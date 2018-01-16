@@ -23,7 +23,11 @@ hr{
   top: 10vh;
   background-color: #83888f;
   z-index: 2;
-  display: none;
+  flex-direction: wrap;
+  flex-wrap: wrap;
+  display:flex;
+}
+.eventPopoutContainer {
 }
 #map {
   width:90vw;
@@ -36,4 +40,3 @@ hr{
 .dates{
   font-size: 4vmin;
 }
-
