@@ -72,6 +72,19 @@ function getCurrentPos() {
 		}
 	);
 }
+/* @function changePosition
+*  prompt for and use ZIP code to create new location object.
+* @param none;
+* @return object {lat: '34', lng:'44'}
+*/
+function changePosition() {
+	$('#zipInput').off();
+	$('#submitBtn').off();
+	addModalKeyDownHandler();
+	addModalClickHandler();
+	$('#zipInputContainer').show();
+	$('#errorModal').modal('show');
+}
 /**
 * @function addModalHandlers
 *  add keydown and click handler to manage inputting zip code in modal
