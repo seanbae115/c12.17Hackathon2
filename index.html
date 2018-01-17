@@ -19,6 +19,12 @@
 <body>
 	<nav id='navigation' class='navbar navbar-light bg-light'>
 		<a href="#" class='navbar-brand'>SpotiConnect</a>
+		<div class="input-group mb-3">
+			<input type="text" class="form-control searchInput" placeholder="Artist's name" aria-label="Recipient's username" aria-describedby="basic-addon2">
+			<div class="input-group-append search">
+				<button class="btn btn-outline-secondary search" type="button">Button</button>
+			</div>
+		</div>
 		<button class="navbar-toggler toggler-example" type="button" data-toggle="collapse" data-target="#navbarDropdown" aria-controls="navbarDropdown"
         aria-expanded="false" aria-label="Toggle navigation"><span class="dark-blue-text"><i class="fa fa-bars fa-1x"></i></span></button>
 		<div class='collapse navbar-collapse' id='navbarDropdown'>
@@ -27,7 +33,7 @@
         	        <a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Change Location</a>
+                    <a class="nav-link" href="#" onclick='getCurrentPos()'>Change Location</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Stuff</a>
@@ -82,7 +88,7 @@
 		</div>
 		<div class='eventPopoutContainer'>
 			<div class='eventPopout'>
-				<div class='col-4 artistPortrait'>
+				<!-- <div class='col-4 artistPortrait'>
 					<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
 					<div class='text-center caption'>Artist</div>
 				</div>
@@ -91,7 +97,7 @@
 					<div class='eventAddress'>999 Candycane Ln, Some City 99999</div>
 					<div class='eventDistance'>Distance: 100m</div>
 				</div>
-				<div class='col-12' id='map'></div>
+				<div class='col-12' id='map'></div> -->
 			</div>
 		</div>
 	</div>
