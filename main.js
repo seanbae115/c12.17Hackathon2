@@ -2,18 +2,20 @@
 // start document
 //-------------------------------------------------------------------------------
 /**
- * code testing spotify API
- * Create new instance of spotifyApi from the js file...what next??
- *
- *
+* Document ready
+* 
 * Code to run when document has loaded
-* @function
-*
 */
 $(document).ready(function() {
 
 });
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
+/**
+ * @function getTopArtists
+ * Ajax call to Spotify to get user top artists
+ * 
+ * @Param {} user
+*/
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -598,12 +600,12 @@ var example = {
     } ]
 };
 function getTopArtists(user) {
-    var artists = [];
+  var artists = [];
 	$.ajax({
 		dataType: 'json',
 		url: 'https://api.spotify.com/v1/user/top/artists',
 		limit: 9,
-		method: 'POST',
+		method: 'GET',
 		success: function (response) {
 			console.log(response);
 			artists = (response.artists);
@@ -612,39 +614,69 @@ function getTopArtists(user) {
             console.log('error');
         }
     });
-	return artists;
+  return artists;
 }
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
+/**
+ * @function renderArtists
+ * 
+ * @param {array} artists_array
+ * 
+*/
+
 function renderArtists(artists_array) {
-    var artistIndex = 0;
-	for(var rowIndex = 0; rowIndex < 3; rowIndex++){
-        var rowDiv = $('<div>',{
+    let artistIndex = 0;
+	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
+        let rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
-        var indexLimit = artistIndex + 3;
+        let indexLimit = artistIndex + 3;
         for(artistIndex; artistIndex < indexLimit; artistIndex++){
-            var name = artists_array.artists[artistIndex].name;
-            var imageUrl = artists_array.artists[artistIndex].images[2].url;
-            var id = artists_array.artists[artistIndex].id;
-            var colDiv = $('<div>',{
+            let name = artists_array.artists[artistIndex].name;
+            let imageUrl = artists_array.artists[artistIndex].images[2].url;
+            let id = artists_array.artists[artistIndex].id;
+            let aTag = $("<a>", {
+                "data-toggle": "collapse",
+                "href": "#collapseOne"
+            });
+            let colDiv = $('<div>',{
                 'class': 'col-4'
             });
-            var img = $('<img>',{
-                src: imageUrl,
-                'class': 'rounded-circle border border-primary img-responsive w-100',
+            let img = $('<div>',{
+                css: {"background-image": `url(${imageUrl})`},
+                'class': 'rounded-circle img-responsive w-100 circleBorder',
                 id: id
             });
-            var nameDiv = $('<div>',{
+            let nameDiv = $('<div>',{
                 text: name,
                 'class': 'text-center caption'
             });
-            colDiv.append(img, nameDiv);
+            aTag.append(img, nameDiv)
+            colDiv.append(aTag);
             rowDiv.append(colDiv);
         }
 		$(".artistContainer").append(rowDiv);
     }
 }
+//-------------------------------------------------------------------------------
+/**
+ * @function addClickHandlers
+ * 
+ * 
+ * 
+*/
+
+function addClickHandlers() {
+    $('<img>').on('click', showInfo);
+}
+//-------------------------------------------------------------------------------
+/**
+ * @function showInfo
+ * 
+ * 
+ * 
+*/
 
 function renderRelated(artists_array) {
 
@@ -698,6 +730,14 @@ function searchArtists(input) {
  * this is an example of the spotify api return*/
 /**************************************************************************************************/
 
+=======
+*/
+/**
+ * @function makeMap creates map 
+ * 
+ * @param ???
+ * 
+*/
 let map;
 function makeMap() {
 	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
@@ -712,15 +752,12 @@ function makeMap() {
 }
 
 //-------------------------------------------------------------------------------
-/*
- * ajax call for TicketMaster local search
- * 
+/* 
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
  * @param {string} artist name
  *
- *
- *
 */
+
 function getLocalEvents (coordObj, artist) {
 	$.ajax({
 		method: 'GET',
@@ -737,7 +774,7 @@ function getLocalEvents (coordObj, artist) {
 //-------------------------------------------------------------------------------
 
 /**
- * ajax call for TicketMaster Event
+ * @function - ajax call for TicketMaster Event information and pricing
  * 
  * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
  * 
