@@ -1,59 +1,22 @@
 //-------------------------------------------------------------------------------
 // start document
 //-------------------------------------------------------------------------------
-/**
- * code testing spotify API
- * Create new instance of spotifyApi from the js file...what next??
- *
- *
-*/
-// var spotifyApi = new SpotifyWebApi();
-
-// spotifyApi.setAccessToken('AQCYrCIDSLYbQSfMRGISNh-VquWKE-P_qF3NyerO3lz25bxRoo_5n00nRrBK3_f9IfjWv1clNHZULfM2')
-
-// spotifyApi.getArtistAlbums('43ZHCT0cAZBISjO8DG9PnE', function(err, data) {
-//   if (err) console.error(err);
-//   else console.log('Artist albums', data);
-// });
-$.ajax({
-	method: "GET",
-	url: "https://accounts.spotify.com/authorize?client_id=514d4820fc1c42eb9e18c9d9ea28de53&redirect_uri=http:%2F%2Flocalhost:8888%2Fcallback&response_type=token",
-	success: function(response) {
-		console.log(response);
-	},
-	error: function(response) {
-		console.log(response);
-	}
-});
 
 /**
- * Spotify ajax call
- *
- *
- *
-*/
-// $.ajax({
-// 	method: "GET",
-// 	url: "https://accounts.spotify.com/authorize?client_id=514d4820fc1c42eb9e18c9d9ea28de53&redirect_uri=http:%2F%2Flocalhost:8888%2Fcallback&response_type=token",
-// 	success: function(response) {
-// 		console.log(response);
-// 	},
-// 	error: function(response) {
-// 		console.log(response);
-// 	}
-// })
-
-//-------------------------------------------------------------------------------
-
-/**
+* Document ready
+* 
 * Code to run when document has loaded
-* @function
-*
 */
 $(document).ready(function() {
 
 });
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
+/**
+ * @function getTopArtists
+ * Ajax call to Spotify to get user top artists
+ * 
+ * @Param {} user
+*/
 //var artists = [];
 function getTopArtists(user) {
 	$.ajax({
@@ -70,7 +33,14 @@ function getTopArtists(user) {
         }
     });
 }
-/*************************************************************************************
+//-------------------------------------------------------------------------------
+/**
+ * @function renderArtists
+ * 
+ * @param {array} artists_array
+ * 
+*/
+
 function renderArtists(artists_array) {
     for(var rowIndex = 0; rowIndex<3; rowIndex++){
         var rowDiv = $('<div>',{
@@ -99,24 +69,45 @@ function renderArtists(artists_array) {
     }
 
 }
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
+/**
+ * @function addClickHandlers
+ * 
+ * 
+ * 
+*/
+
 function addClickHandlers() {
     $('<img>').on('click', showInfo);
 }
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
+/**
+ * @function showInfo
+ * 
+ * 
+ * 
+*/
+
 function showInfo() {
 }
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
+/**
+ * @function getRelatedArtists
+ * 
+ * @param {string??} artist
+ * 
+*/
+
 function getRelatedArtists(artist) {
     artist = $(this).attr('id');
     var relatedArtists = [];
     $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists'
+        url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
         method: 'GET',
         data: {
             artist_id: artist
-        }
+        },
         success: function (response) {
             console.log(response);
             relatedArtists = (response.artists);
@@ -126,10 +117,17 @@ function getRelatedArtists(artist) {
         }
     })
 }
+//-------------------------------------------------------------------------------
+/**
+ * @function searchArtists
+ * 
+ * @param {string} input - search term
+ * 
+*/
 
 function searchArtists(input) {
     $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists"
+        url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
         method: 'GET',
         data: {
@@ -141,6 +139,9 @@ function searchArtists(input) {
     })
 }
 
+//-------------------------------------------------------------------------------
+/*
+  
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -724,6 +725,14 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
+*/
+/**
+ * @function makeMap creates map 
+ * 
+ * @param ???
+ * 
+*/
+
 let map;
 function makeMap() {
 	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
@@ -738,46 +747,15 @@ function makeMap() {
 }
 
 //-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-//var artists = [];
-/*function getTop9Artists(user) {
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-        }
-    });
-}*/
 
-/*
-function renderArtists(artists) {
-	for(var artistIndex = 0; artistIndex < artist.length; artistIndex++){
-        var name = artist[artistIndex].name;
-        var imageUrl = artist[artistIndex].image[2].url;
-        var img = $('<img>',{
-            src: imageUrl,
-			'class': 'rounded-circle border border-primary img-responsive w-100'
-        });
-        var nameDiv = $('<div>',{
-        	text: name,
-			'class': 'text-center caption'
-		});
-
-	}
-
-}*/
 /**
- * ajax call for TicketMaster local search
+ * @function getLocalEvents ajax call for TicketMaster local search
  * 
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
  * @param {string} artist name
  *
- *
- *
 */
+
 function getLocalEvents (coordObj, artist) {
 	$.ajax({
 		method: 'GET',
@@ -794,7 +772,7 @@ function getLocalEvents (coordObj, artist) {
 //-------------------------------------------------------------------------------
 
 /**
- * ajax call for TicketMaster Event
+ * @function - ajax call for TicketMaster Event information and pricing
  * 
  * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
  * 
