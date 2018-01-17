@@ -23,31 +23,11 @@ $(document).ready(function() {
     //getRelatedArtists("3WrFJ7ztbogyGnTHbHJFl2");
     searchClickHandler();
 });
-//-------------------------------------------------------------------------------
-/**
- * getTopArtists - Ajax call to Spotify to get user top artists
- * @Param {} user
-*/
-//var artists = [];
-function getTopArtists(user) {
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-}
 /***********************************************************************
 * @function getCurrentPos
 *  use google maps API to get current position. If it fails, prompt for and use ZIP code.
-* @param none;
+
+* @param: {undefined} none;
 * @calls addModalKeyDownHandler(); addModalClickHandler();
 * @return object {lat: '34', lng:'44'}
 */
@@ -75,9 +55,9 @@ function getCurrentPos() {
 	);
 }
 /**
-* @function addKeyDownModalHandlers
-*  add keydown handler to manage inputting zip code in modal
-* @param none;
+* addModalKeyDownHandler
+*  add keydown and click handler to manage inputting zip code in modal
+* @param: none;
 * @calls validateZip, addressToLatLng
 */
 function addModalKeyDownHandler() {
@@ -85,13 +65,13 @@ function addModalKeyDownHandler() {
 		switch(e.which) {
 			case 13:
 				if(validateZip($('#zipInput').val())) {
-					addressToLatLng($('#zipInput').val())
+					addressToLatLng($('#zipInput').val());
                     setTimeout(function() {
                         currentPos = tempPos;
                     }, 1000);
                     $('#zipInputContainer').hide();
 					$('#errorModal').modal('hide');
-				};
+				}
 				break;
 		}
 	});
@@ -125,7 +105,7 @@ function searchClickHandler() {
 /**
 * @function validateZip
 *   ensure zip inputted is 5 in length and only numbers.
-* @param string; numbers
+* @param: string; numbers
 * @return boolean.
 */
 function validateZip(zip) {
@@ -134,7 +114,7 @@ function validateZip(zip) {
 /**
 * @function makeMap
 * constructs map placing a marker at currentPos
-* @param object with keys lat and lng
+* @param: {object} object with keys lat and lng
 * @return
 */
 
@@ -157,7 +137,7 @@ function makeMap(centerPoint = {lat: 33.6846, lng: -117.8265}) {
 /**
 * @function convertAddress/ZipToLatLng
 * convert input into an object with keys lat and lng
-* @param string address or zip typically
+* @param: {string} address or zip typically
 * @return
 */
 
@@ -224,9 +204,8 @@ function getDistanceTime(origin, destination) {
         // });
 }
 /**
-* @function placeMarker
-* places down marker on map given obj with coordinates and event info
-* @param obj
+* placeMarker - places down marker on map given obj with coordinates and event info
+* @param: {object}
 * @return
 */
 function placeMarker(eventObj) {
@@ -308,17 +287,22 @@ function renderConcertInfoPage(artist, eventIndex) {
 */
 function renderArtists(artists_obj) {
     let artistIndex = 0;
-	for(var rowIndex = 0; rowIndex < 4; rowIndex++){
+    let dropDownIndex = 0;
+	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
         var rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
         let indexLimit = artistIndex + 3;
         for(artistIndex; artistIndex < indexLimit; artistIndex++){
-        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv, rowIndex);
+        	let singleArtist = renderOneArtist(artists_obj.artists[artistIndex]);
+        	rowDiv.append(singleArtist);
         }
-        let dropDown = createInfoDropDown(rowIndex);
-        rowDiv.append(dropDown);
+        for (dropDownIndex; dropDownIndex < indexLimit; dropDownIndex++){
+            let dropDown = createInfoDropDown(artists_obj.artists[dropDownIndex]);
+            rowDiv.append(dropDown);
+            artists_obj.artists[dropDownIndex].row = rowDiv;
+        }
 		$(".artistContainer").append(rowDiv);
     }
 }
@@ -326,13 +310,13 @@ function renderArtists(artists_obj) {
  * renderOneArtist - renders the artist and their information on DOM
  * @param: {object, DomElement} artist, rowDiv - a single object from the artists_object
 */
-function renderOneArtist (artist, rowDiv, rowNum) {
+function renderOneArtist (artist) {
 	let name = artist.name;
 	let imageUrl = artist.images[2].url;
 	let id = artist.id;
 	let aTag = $("<a>", {
 	    "data-toggle": "collapse",
-	    "href": `#collapse${rowNum}`
+	    "href": `#collapse${artist.name}`
 	});
 	let colDiv = $('<div>',{
 	    'class': 'col-4'
@@ -352,19 +336,17 @@ function renderOneArtist (artist, rowDiv, rowNum) {
 	    'class': 'text-center caption'
 	});
 	aTag.append(img, nameDiv);
-	colDiv.append(aTag);
-	rowDiv.append(colDiv);
-	artist.row = rowDiv;
+	return colDiv.append(aTag);
 }
 /***********************************************************************************************************************
  * createArtistInfo -
  */
-function createInfoDropDown(currentRow){
+function createInfoDropDown(artist){
     let fullDiv = $("<div>",{
        "class": "col-12 artistInfo",
     });
     let collapseDiv = $("<div>",{
-       id: `collapse${currentRow}`,
+       id: `collapse${artist.name}`,
        "class": "collapse hide",
         role: "tabpanel",
         "aria-labelledby": "headingOne",
@@ -373,22 +355,111 @@ function createInfoDropDown(currentRow){
     let body = $("<div>", {
        "class": "card-body"
     });
-    let calRow = $("<div>", {
-       "class": "row mt-3"
+    let calRow = renderEvents(artist.events);
+    let relatedTitle = $("<p>",{
+        "class": "text-center",
+        text: "Related Artists"
     });
-    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"))));
+    let relatedArtists = populateRelatedArtists(example);
+    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"), relatedTitle, relatedArtists)));
 }
 /***********************************************************************************************************************
- *@function renderRelated
+ *@function renderOneRelated
+ * @param: {object} artist
  */
-function renderRelated(artists_array) {
-
+function renderOneRelated(artist) {
+    let name = artist.name;
+    let imageUrl = artist.images[2].url;
+    let id = artist.id;
+    let colDiv = $('<div>',{
+        'class': 'col-3'
+    });
+    let img = $('<div>',{
+        css: {"background-image": `url(${imageUrl})`},
+        'class': 'rounded-circle img-responsive w-100 circleBorder',
+        id: id,
+        on: {
+            click: () => {
+                console.log("Related artist clicked");
+            }
+        }
+    });
+    let nameDiv = $('<div>',{
+        text: name,
+        'class': 'text-center caption'
+    });
+    return colDiv.append(img, nameDiv);
 }
+/***********************************************************************************************************************
+ *@function populateRelatedArtists
+ */
+function populateRelatedArtists(artistsObj){
+    let relatedRow = $("<div>",{
+        "class": "row mt-3 relatedArtistRow"
+    });
+    for (let relatedIndex = 0; relatedIndex < 4; relatedIndex++){
+        let artistElement = renderOneRelated(artistsObj.artists[relatedIndex]);
+        relatedRow.append(artistElement);
+    }
+    return relatedRow;
+}
+
+/***********************************************************************************************************************
+ * renderOneEvent -
+ *
+ */
+function renderOneEvent(domElement, eventObj, indexNum){
+    let date = eventObj.dates.start.localDate;
+    let location = eventObj._embedded.venues[indexNum].name;
+    let calendar = $("<div>",{
+       "class": "col-3 dates",
+        text: date
+    });
+    let icon = $("<i>",{
+        "class": "fa fa-calendar",
+        "aria-hidden": "true"
+    });
+    let venue = $("<div>",{
+       "class": "col-9 venueName",
+       text: location
+    });
+    date.append(icon);
+    return domElement.append(calendar, venue);
+}
+/***********************************************************************************************************************
+ * renderEvents -
+ *
+ */
+function renderEvents(eventArray){
+    let calRow = $("<div>", {
+        "class": "row mt-3"
+    });
+    let infoContain = $("<div>",{
+        "class": "col-12"}).append($("<p>",{"class": "text-center", text: "Upcoming Events"}));
+    let datesContain = $("<div>",{
+       "class": "row"
+    });
+    calRow.append(infoContain);
+    if (eventArray === undefined){
+        datesContain.append($("<p>",{
+            "class": "col-12",
+            text: "there are no events for this artist"
+        }));
+        return datesContain;
+    }
+    else{
+        for (let eventIndex = 0; eventIndex < 4; eventIndex++){
+            datesContain = renderOneEvent(datesContain, eventArray[eventIndex], eventIndex);
+        }
+        return calRow.append(datesContain);
+    }
+}
+
 /***********************************************************************************************************************
 *getTopArtists
 */
 function getTopArtists(user) {
-  var artists = [];
+  let artists = [];
 	$.ajax({
 		dataType: 'json',
 		url: 'https://api.spotify.com/v1/user/top/artists',
