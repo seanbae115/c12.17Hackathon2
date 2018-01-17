@@ -8,14 +8,13 @@
 */
 $(document).ready(function() {
 	getCurrentPos();
-	$('.eventPopoutContainer').slideToggle()
+	$('.eventPopoutContainer').slideToggle();
+    renderArtists(example);
 
 });
 //-------------------------------------------------------------------------------
 /**
- * @function getTopArtists
- * Ajax call to Spotify to get user top artists
- *
+ * getTopArtists - Ajax call to Spotify to get user top artists
  * @Param {} user
 */
 //var artists = [];
@@ -34,29 +33,219 @@ function getTopArtists(user) {
         }
     });
 }
+/*************************************************************************************/
 
-/**
- * @function addClickHandlers
- * 
- * 
- * 
+let map;
+let currentPos = null;
+let geocoder;
+
+/***********************************************************************************************************************
+ * getCurrentPos
+ */
+function getCurrentPos() {
+	navigator.geolocation.getCurrentPosition(
+		function(position) {
+		//err
+			currentPos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude,
+			};
+            makeMap(currentPos.lat, currentPos.lng);
+		},
+		function(error) {
+			$('#zipInputContainer').show();
+			addModalKeyDownHandlers();
+			addModalClickHandlers();
+			$('#errorModal').modal('show');
+		}, {
+			enableHighAccuracy: true,
+			timeout: 1000,
+		}
+	);
+}
+/***********************************************************************************************************************
+ * addModalKeyDownHandlers
+ */
+function addModalKeyDownHandlers() {
+	$('#zipInput').keydown(function(e){
+		switch(e.which) {
+			case 13:
+				if(checkZipInput($('#zipInput').val())) {
+					$(this).off();
+					addressToLatLng($('#zipInput').val());
+					$('#errorModal').modal('hide');
+				};
+				break;
+		}
+	});
+}
+/***********************************************************************************************************************
+ * addModalClickHandlers
+ */
+function addModalClickHandlers() {
+	$('#zipInputContainer button').click(function() {
+		if(checkZipInput($('#zipInput').val())) {
+			$(this).off();
+			 addressToLatLng($('#zipInput').val());
+			$('#errorModal').modal('hide');
+		}
+	});
+}
+/***********************************************************************************************************************
+ * checkZipInput
+ * @param: {} zip -
+ * @returns: {conditional}
+ */
+function checkZipInput(zip) {
+	if (parseInt(zip).toString() === zip && zip.length === 5){
+		return true;
+	} return false;
+}
+/***********************************************************************************************************************
+ * makeMap -
+ * @param: {number, number} lat, lng
+ */
+function makeMap(lat = 33.669, lng = -117.823) {
+	var mapCenter = new google.maps.LatLng(lat, lng);
+	console.log(mapCenter);
+	map = new google.maps.Map(document.getElementById('map'),{
+		center:mapCenter,
+		zoom: 13
+	});
+	var marker = new google.maps.Marker({
+          position: mapCenter,
+          map: map
+  });
+}
+/***********************************************************************************************************************
+ * addressToLatLng -
+ * @param: {number} address
+ */
+function addressToLatLng(address) {
+	geocoder = new google.maps.Geocoder();
+	geocoder.geocode({'address': address} , function(data, status) {
+		if (status === 'OK') {
+			currentPos = {
+				lat: data[0].geometry.location.lat(),
+				lng: data[0].geometry.location.lng(),
+			};
+			makeMap(currentPos.lat, currentPos.lng);
+		} else {
+			$('#errorModal .modal-body').text('Geocode failed: ' + status);
+			$('errorModal').modal('show');
+		}
+	});
+}
+/***********************************************************************************************************************
+ * renderArtists
+ * @param: {object} artists_obj
+ * @calls: renderOneArtist, createInfoDropDown
+*/
+function renderArtists(artists_obj) {
+    let artistIndex = 0;
+	for(var rowIndex = 0; rowIndex < 4; rowIndex++){
+        var rowDiv = $('<div>',{
+            'class': 'row mt-3 artistsRow accordion',
+            role: 'tablist'
+        });
+        let indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv, rowIndex);
+        }
+        let dropDown = createInfoDropDown(rowIndex);
+        rowDiv.append(dropDown);
+		$(".artistContainer").append(rowDiv);
+    }
+}
+/***********************************************************************************************************************
+ * renderOneArtist - renders the artist and their information on DOM
+ * @param: {object, DomElement} artist, rowDiv - a single object from the artists_object
+*/
+function renderOneArtist (artist, rowDiv, rowNum) {
+	let name = artist.name;
+	let imageUrl = artist.images[2].url;
+	let id = artist.id;
+	let aTag = $("<a>", {
+	    "data-toggle": "collapse",
+	    "href": `#collapse${rowNum}`
+	});
+	let colDiv = $('<div>',{
+	    'class': 'col-4'
+	});
+	let img = $('<div>',{
+	    css: {"background-image": `url(${imageUrl})`},
+	    'class': 'rounded-circle img-responsive w-100 circleBorder',
+	    id: id,
+		on: {
+			click: () => {
+				getLocalEvents(currentPos,name);
+				console.log(typeof name);
+			}
+		}
+	});
+	let nameDiv = $('<div>',{
+	    text: name,
+	    'class': 'text-center caption'
+	});
+	aTag.append(img, nameDiv);
+	colDiv.append(aTag);
+	rowDiv.append(colDiv);
+}
+/***********************************************************************************************************************
+ * createArtistInfo -
+ */
+function createInfoDropDown(currentRow){
+    let fullDiv = $("<div>",{
+       "class": "col-12 artistInfo",
+    });
+    let collapseDiv = $("<div>",{
+       id: `collapse${currentRow}`,
+       "class": "collapse hide",
+        role: "tabpanel",
+        "aria-labelledby": "headingOne",
+        "data-parent": "#accordion"
+    });
+    let body = $("<div>", {
+       "class": "card-body"
+    });
+    let calRow = $("<div>", {
+       "class": "row mt-3"
+    });
+    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"))));
+}
+
+/***********************************************************************************************************************
+ * addClickHandlers
 */
 
-//-------------------------------------------------------------------------------
 function addClickHandlers() {
     $('<img>').on('click', showInfo);
 }
-/*************************************************************************************/
+/***********************************************************************************************************************
+ * showInfo
+*/
 function showInfo() {
+
 }
-/*************************************************************************************/
+/***********************************************************************************************************************
+ *@function renderRelated
+ */
+function renderRelated(artists_array) {
+
+}
+/*********************************************************************************************************************
+ *getRelatedArtists -
+ * @param: {string} artist -
+ * @returns: {object} relatedArtists
+ */
 function getRelatedArtists(artist) {
     artist = $(this).attr('id');
-    var relatedArtists = [];
+    let relatedArtists = [];
     $.ajax({
         url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
-        method: 'GET',
+        method: 'POST',
+        limit: 10,
         data: {
             artist_id: artist
         },
@@ -67,14 +256,18 @@ function getRelatedArtists(artist) {
         error: function (response) {
             console.log('error');
         }
-    })
+    });
+    return relatedArtists;
 }
-
+/***********************************************************************************************************************
+ * searchArtists - ajax call for Spotify from search bar
+ * @param: {string} input -
+ */
 function searchArtists(input) {
     $.ajax({
         url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
-        method: 'GET',
+        method: 'POST',
         data: {
             search_term: input
         },
@@ -83,7 +276,53 @@ function searchArtists(input) {
         }
     })
 }
+/***********************************************************************************************************************
+ * getLocalEvents - ajax call for TicketMaster local search
+ * @param: {object, string} coordObj, artist - object with 'lat' & 'lng' properties, each containing a string of numbers
+ * @returns: {undefined} none
+*/
 
+function getLocalEvents (coordObj, artist) {
+	$.ajax({
+		method: 'GET',
+		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist}`,
+		success:  response => {
+			console.log(response);
+		},
+		error: response => {
+			console.log(response);
+		}
+	})
+}
+/***********************************************************************************************************************
+ * getEventInfo - ajax call for TicketMaster Event information and pricing
+ * @params {string} eventID of the specific event !!Could use URL of event from objects returned, just need
+ * @returns: {undefined} none
+*/
+let seatPricing = null;
+function getEventInfo(eventID){
+	$.ajax({
+		method: 'GET',
+		url: `https://app.ticketmaster.com/commerce/v2/events/${eventID}/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8`,
+		success:  response => {
+			let prices = [];
+			let objects = response.offers[0].attributes.prices;
+			objects.map( object => prices.push(object.value) );
+			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) );
+			seatPricing = prices
+		},
+		error: response => {
+			console.log(response);
+		}
+	})
+}
+
+
+/***********************************************************************************************************************
+ * *********************************************************************************************************************
+ * this is an example of the spotify api return
+ * *********************************************************************************************************************
+***********************************************************************************************************************/
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -667,287 +906,3 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
-let map;
-let currentPos = null;
-let geocoder;
-function getCurrentPos() {
-	navigator.geolocation.getCurrentPosition(
-		function(position) {
-		//err
-			currentPos = {
-				lat: position.coords.latitude,
-				lng: position.coords.longitude,
-			};
-            makeMap(currentPos.lat, currentPos.lng);
-		},
-		function(error) {
-			$('#zipInputContainer').show();
-			addModalKeyDownHandlers();
-			addModalClickHandlers();
-			$('#errorModal').modal('show');
-		}, {
-			enableHighAccuracy: true,
-			timeout: 1000,
-		}
-	);
-}
-function addModalKeyDownHandlers() {
-	$('#zipInput').keydown(function(e){
-		switch(e.which) {
-			case 13:
-				if(checkZipInput($('#zipInput').val())) {
-					$(this).off();
-					addressToLatLng($('#zipInput').val());
-					$('#errorModal').modal('hide');
-				};
-				break;
-		}
-	});
-}
-function addModalClickHandlers() {
-	$('#zipInputContainer button').click(function() {
-		if(checkZipInput($('#zipInput').val())) {
-			$(this).off();
-			 addressToLatLng($('#zipInput').val());
-			$('#errorModal').modal('hide');
-		}
-	});
-}
-function checkZipInput(zip) {
-	if (parseInt(zip).toString() === zip && zip.length === 5){
-		return true;
-	} return false;
-}
-function makeMap(lat = 33.669, lng = -117.823) {
-	var mapCenter = new google.maps.LatLng(lat, lng);
-	console.log(mapCenter);
-	map = new google.maps.Map(document.getElementById('map'),{
-		center:mapCenter,
-		zoom: 13
-	});
-	var marker = new google.maps.Marker({
-          position: mapCenter,
-          map: map
-  });
-}
-function addressToLatLng(address) {
-	geocoder = new google.maps.Geocoder();
-	geocoder.geocode({'address': address} , function(data, status) {
-		if (status === 'OK') {
-			currentPos = {
-				lat: data[0].geometry.location.lat(),
-				lng: data[0].geometry.location.lng(),
-			};
-			makeMap(currentPos.lat, currentPos.lng);
-		} else {
-			$('#errorModal .modal-body').text('Geocode failed: ' + status);
-			$('errorModal').modal('show');
-		}
-	});
-}
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-//var artists = [];
-/*function getTop9Artists(user) {
-=======
-function getTopArtists(user) {
-  var artists = [];
->>>>>>> d53838eb7a58fcbf68a475ce51efee51ff879a15
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-  return artists;
-}
-//-------------------------------------------------------------------------------
-/**
- * @function renderArtists
- *
- * @param {array} artists_array
- *
-*/
-
-function renderArtists(artists_obj) {
-    let artistIndex = 0;
-	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
-        var rowDiv = $('<div>',{
-            'class': 'row mt-3 artistsRow accordion',
-            role: 'tablist'
-        });
-        let indexLimit = artistIndex + 3;
-        for(artistIndex; artistIndex < indexLimit; artistIndex++){
-        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv)
-        }
-		$(".artistContainer").append(rowDiv);
-    }
-} //renderArtists
-/**
- * @function renderOneArtist - renders the artist and their information on DOM
- * 
- * @param {object} artist - a single object from the artists_object
- * 
-*/
-function renderOneArtist (artist, rowDiv) {
-	let name = artist.name;
-	let imageUrl = artist.images[2].url;
-	let id = artist.id;
-	let aTag = $("<a>", {
-	    "data-toggle": "collapse",
-	    "href": "#"
-	});
-	let colDiv = $('<div>',{
-	    'class': 'col-4'
-	});
-	let img = $('<div>',{
-	    css: {"background-image": `url(${imageUrl})`},
-	    'class': 'rounded-circle img-responsive w-100 circleBorder',
-	    id: id,
-		on: {
-			click: () => {
-				getLocalEvents(currentPos,name);
-				console.log(typeof name);
-			}
-		}
-	});
-	let nameDiv = $('<div>',{
-	    text: name,
-	    'class': 'text-center caption'
-	});
-	aTag.append(img, nameDiv)
-	colDiv.append(aTag);
-	rowDiv.append(colDiv);
-} //function renderOneArtist
-
-//-------------------------------------------------------------------------------
-/**
- * @function addClickHandlers
- *
- *
- *
-*/
-
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
-}
-//-------------------------------------------------------------------------------
-/**
- * @function showInfo
- *
- *
- *
-*/
-
-function renderRelated(artists_array) {
-
-}
-/*************************************************************************************/
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
-}
-/*************************************************************************************/
-function showInfo() {
-
-}
-/*************************************************************************************/
-function getRelatedArtists(artist) {
-    artist = $(this).attr('id');
-    var relatedArtists = [];
-    $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists',
-        dataType: 'json',
-        method: 'POST',
-        limit: 10,
-        data: {
-            artist_id: artist
-        },
-        success: function (response) {
-            console.log(response);
-            relatedArtists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-    return relatedArtists;
-}
-
-function searchArtists(input) {
-    $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists",
-        dataType: 'json',
-        method: 'POST',
-        data: {
-            search_term: input
-        },
-        success: function (response) {
-            console.log(response);
-        }
-    })
-}
-
-/***************************************************************************************************
- * this is an example of the spotify api return*/
-/**************************************************************************************************/
-/**
- * ajax call for TicketMaster local search
- *
- * @function makeMap creates map
- *
- * @param ???
- *
- * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
- * @param {string} artist name
- *
-*/
-
-function getLocalEvents (coordObj, artist) {
-	$.ajax({
-		method: 'GET',
-		url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=' + coordObj.lat +','+coordObj.lng +'&radius=100&unit=miles&keyword='+ artist,
-		success:  response => {
-			console.log(response);
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
-} //function getLocalEvents
-
-//-------------------------------------------------------------------------------
-
-/**
- * ajax call for TicketMaster Event
- *
- * @function - ajax call for TicketMaster Event information and pricing
- *
- * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
- *
-*/
-let seatPricing = null;
-function getEventInfo(eventID){
-	$.ajax({
-		method: 'GET',
-		url: 'https://app.ticketmaster.com/commerce/v2/events/'+ eventID + '/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
-		success:  response => {
-			let prices = [];
-			let objects = response.offers[0].attributes.prices;
-			objects.map( object => prices.push(object.value) );
-			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) )
-			seatPricing = prices
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
-} //function getEventInfo
-//-------------------------------------------------------------------------------
