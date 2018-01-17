@@ -264,10 +264,13 @@ function createInfoDropDown(artist){
     let body = $("<div>", {
        "class": "card-body"
     });
-    let calRow = $("<div>", {
-       "class": "row mt-3"
+    let calRow = renderEvents(artist.events);
+    let relatedTitle = $("<p>",{
+        "class": "text-center",
+        text: "Related Artists"
     });
-    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"))));
+    let relatedArtists = populateRelatedArtists(example);
+    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"), relatedTitle, relatedArtists)));
 }
 /***********************************************************************************************************************
  *@function renderOneRelated
@@ -294,24 +297,73 @@ function renderOneRelated(artist) {
         text: name,
         'class': 'text-center caption'
     });
-    colDiv.append(img, nameDiv);
-    return rowDiv.append(colDiv);
+    return colDiv.append(img, nameDiv);
 }
 /***********************************************************************************************************************
- *@function renderRelatedArtists
+ *@function populateRelatedArtists
  */
-function renderRelatedArtists(artistsObj){
-    let title = $("<p>",{
-        "class": "text-center",
-        text: "Related Artists"
-    });
+function populateRelatedArtists(artistsObj){
     let relatedRow = $("<div>",{
         "class": "row mt-3 relatedArtistRow"
     });
-    for (var relatedIndex = 0; relatedIndex < 4; relatedIndex++){
-        renderOneArtist(artistsObj.artists[relatedIndex])
+    for (let relatedIndex = 0; relatedIndex < 4; relatedIndex++){
+        let artistElement = renderOneRelated(artistsObj.artists[relatedIndex]);
+        relatedRow.append(artistElement);
+    }
+    return relatedRow;
+}
+
+/***********************************************************************************************************************
+ * renderOneEvent -
+ *
+ */
+function renderOneEvent(domElement, eventObj, indexNum){
+    let date = eventObj.dates.start.localDate;
+    let location = eventObj._embedded.venues[indexNum].name;
+    let calendar = $("<div>",{
+       "class": "col-3 dates",
+        text: date
+    });
+    let icon = $("<i>",{
+        "class": "fa fa-calendar",
+        "aria-hidden": "true"
+    });
+    let venue = $("<div>",{
+       "class": "col-9 venueName",
+       text: location
+    });
+    date.append(icon);
+    return domElement.append(calendar, venue);
+}
+/***********************************************************************************************************************
+ * renderEvents -
+ *
+ */
+function renderEvents(eventArray){
+    let calRow = $("<div>", {
+        "class": "row mt-3"
+    });
+    let infoContain = $("<div>",{
+        "class": "col-12"}).append($("<p>",{"class": "text-center", text: "Upcoming Events"}));
+    let datesContain = $("<div>",{
+       "class": "row"
+    });
+    calRow.append(infoContain);
+    if (eventArray === undefined){
+        datesContain.append($("<p>",{
+            "class": "col-12",
+            text: "there are no events for this artist"
+        }));
+        return datesContain;
+    }
+    else{
+        for (let eventIndex = 0; eventIndex < 4; eventIndex++){
+            datesContain = renderOneEvent(datesContain, eventArray[eventIndex], eventIndex);
+        }
+        return calRow.append(datesContain);
     }
 }
+
 /***********************************************************************************************************************
 *getTopArtists
 */
@@ -391,6 +443,7 @@ function getLocalEvents (coordObj, artist) {
 				eventArray.push(event);
 			});
 			artist.events = eventArray;
+			console.log(artist.row);
 			createInfoDropDown(artist.row);
 
 		},
