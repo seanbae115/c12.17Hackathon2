@@ -10,6 +10,7 @@ let currentPos = null;
 let tempPos = null;
 let geocoder;
 let distMatrix;
+
 /**
 * Document ready
 *
@@ -19,6 +20,8 @@ $(document).ready(function() {
 	getCurrentPos();
 	$('.eventPopoutContainer').slideToggle();
     renderArtists(example);
+    //getRelatedArtists("3WrFJ7ztbogyGnTHbHJFl2");
+    searchClickHandler();
 });
 //-------------------------------------------------------------------------------
 /**
@@ -110,6 +113,14 @@ function addModalClickHandler() {
 			$('#errorModal').modal('hide');
 		}
 	});
+}
+
+function searchClickHandler() {
+    $('.search').on('click',function () {
+        console.log('clicked');
+        var input = $('.searchInput').val();
+        searchArtists(input);
+    })
 }
 /**
 * @function validateZip
@@ -392,50 +403,53 @@ function getTopArtists(user) {
             console.log('error');
         }
     });
-  return artists;
 }
 /*********************************************************************************************************************
  *getRelatedArtists -
  * @param: {string} artist -
  * @returns: {object} relatedArtists
  */
-function getRelatedArtists(artist) {
-    artist = $(this).attr('id');
-    let relatedArtists = [];
+function getRelatedArtists(artistID) {
+    //"3WrFJ7ztbogyGnTHbHJFl2"
     $.ajax({
         url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
         method: 'POST',
         limit: 10,
         data: {
-            artist_id: artist
+            artist_id: artistID
         },
         success: function (response) {
             console.log(response);
-            relatedArtists = (response.artists);
+            let relatedArtists = {};
+            relatedArtists.artists = response.data.items;
+            renderArtists(relatedArtists)
         },
         error: function (response) {
             console.log('error');
         }
     });
-    return relatedArtists;
 }
 /***********************************************************************************************************************
  * searchArtists - ajax call for Spotify from search bar
  * @param: {string} input -
  */
 function searchArtists(input) {
+    let searchedArtist = {};
     $.ajax({
         url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
         method: 'POST',
         data: {
-            search_term: input
+            search_term: input,
+            limit: 10
         },
         success: function (response) {
             console.log(response);
+            searchedArtist.artists = response.data.items;
+            console.log(searchedArtist);
         }
-    })
+    });
 }
 /***********************************************************************************************************************
  * getLocalEvents - ajax call for TicketMaster local search
@@ -443,23 +457,29 @@ function searchArtists(input) {
  * @returns: {undefined} none
 */
 function getLocalEvents (coordObj, artist) {
-	$.ajax({
-		method: 'GET',
-        dataType: 'json',
-		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}`,
-		success:  response => {
-			let eventArray = [];
-			response._embedded.events.forEach( (event) => {
-				eventArray.push(event);
-			});
-			artist.events = eventArray;
-			createInfoDropDown(artist.row);
-
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
+	if(coordObj !== null){
+		$.ajax({
+			method: 'GET',
+	        dataType: 'json',
+			url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
+			success:  response => {
+				if(response.hasOwnProperty('_embedded')){
+					let eventArray = [];
+					response._embedded.events.forEach( (event) => {eventArray.push(event)} );
+					artist.events = eventArray;
+				} else {
+					// $(p > '.artist').text('No local events scheduled at this time')
+					alert('No information to display')
+				}
+			 	createInfoDropDown(artist.row);
+			},
+			error: response => {
+				console.log(response);
+			}
+		})
+	} else {
+		getCurrentPos();
+	}
 }
 //-------------------------------------------------------------------------------
 // Below function is depricated, due to having the information returned in the event object
