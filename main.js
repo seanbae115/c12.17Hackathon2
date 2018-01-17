@@ -45,6 +45,7 @@ function getTopArtists(user) {
 * @function getCurrentPos
 *  use google maps API to get current position. If it fails, prompt for and use ZIP code.
 * @param none;
+* @calls addModalKeyDownHandler(); addModalClickHandler();
 * @return object {lat: '34', lng:'44'}
 */
 function getCurrentPos() {
@@ -58,9 +59,10 @@ function getCurrentPos() {
 		function(error) { //on failure
 			$('#zipInputContainer').show();
             if(!currentPos) {
-                addModalKeyDownHandler();
-    			addModalClickHandler();
+              addModalKeyDownHandler();
+    					addModalClickHandler();
             }
+			$('#errorModalTitle').text("We couldn't get your current position automatically")
 			$('#errorModal').modal('show');
 		},
         {
@@ -70,9 +72,10 @@ function getCurrentPos() {
 	);
 }
 /**
-* @function addModalHandlers
-*  add keydown and click handler to manage inputting zip code in modal
+* @function addKeyDownModalHandlers
+*  add keydown handler to manage inputting zip code in modal
 * @param none;
+* @calls validateZip, addressToLatLng
 */
 function addModalKeyDownHandler() {
 	$('#zipInput').keydown(function(e){
@@ -90,6 +93,12 @@ function addModalKeyDownHandler() {
 		}
 	});
 }
+/**
+* @function addClickModalHandlers
+*  add click handler to manage inputting zip code in modal
+* @param none;
+* @calls validateZip, addressToLatLng
+*/
 function addModalClickHandler() {
 	$('#zipInputContainer button').click(function() {
 		if(validateZip($('#zipInput').val())) {
@@ -109,7 +118,7 @@ function addModalClickHandler() {
 * @return boolean.
 */
 function validateZip(zip) {
-	return parseInt(zip).toString() === zip && zip.length === 5 ? true: false;
+	return (parseInt(zip).toString() === zip && zip.length === 5);
 }
 /**
 * @function makeMap
@@ -118,7 +127,7 @@ function validateZip(zip) {
 * @return
 */
 
-function makeMap(centerPoint) {
+function makeMap(centerPoint = {lat: 33.6846, lng: -117.8265}) {
 	// var mapCenter = new google.maps.LatLng(lat, lng);
 	map = new google.maps.Map(document.getElementById('map'),{
 		center:centerPoint,
@@ -128,6 +137,10 @@ function makeMap(centerPoint) {
           position: centerPoint,
           map: map,
   });
+	var infowindow = new google.maps.InfoWindow({
+  	content:"Start Here!"
+  });
+	infowindow.open(map,marker);
 }
 
 /**
@@ -139,7 +152,7 @@ function makeMap(centerPoint) {
 
 function addressToLatLng(address) {
     geocoder ? '' : geocoder = new google.maps.Geocoder();
-	geocoder.geocode({'address': address} , function(data, status) {
+		geocoder.geocode({'address': address} , function(data, status) {
 		if (status === 'OK') {
 			tempPos = {
 				lat: data[0].geometry.location.lat(),
@@ -148,10 +161,9 @@ function addressToLatLng(address) {
 			// makeMap(currentPos.lat, currentPos.lng);
 		} else {
 			$('#errorModal .modal-body').text('Geocode failed: ' + status);
-			$('errorModal').modal('show');
+			$('#errorModal').modal('show');
 		}
 	});
-
 }
 
 /**
@@ -201,14 +213,83 @@ function getDistanceTime(origin, destination) {
         // });
 }
 /**
-* @function placeMarkers
-* places down markers on map given array of coordinates and info
-* @param array
+* @function placeMarker
+* places down marker on map given obj with coordinates and event info
+* @param obj
 * @return
 */
-function placeMarkers(obj) {
-
+function placeMarker(eventObj) {
+	var marker = new google.maps.Marker({
+		position: {
+			lat: parseFloat(eventObj._embedded.venues[0].location.latitude),
+			lng: parseFloat(eventObj._embedded.venues[0].location.longitude),
+		},
+		map: map,
+		title: eventObj.name,
+	});
+	var infoWindow = new google.maps.InfoWindow({
+		content: '<div> Date '+ eventObj.dates.start.localDate+'</div>'
+	});
+	marker.addListener('click', function(){
+		infoWindow.open(map, marker);
+	});
+	infoWindow.addListener('click', function() {
+		window.open('https://www.google.com/maps/dir/?api=1&destination='+
+		eventObj._embedded.venues[0].location.latitude+','+
+		eventObj._embedded.venues[0].location.longitude)
+	});
 }
+
+function fitMapBounds() {
+	var markers = [];
+	var bounds = new google.maps.LatLngBounds();
+	for (var i = 0; i < markers.length; i++) {
+			bounds.extend(markers[i].getPosition());
+	}
+	map.fitBounds(bounds);
+}
+/***********************************************************************************************************************
+ * renderConcertInfoPage
+ * @param: {object} artist_obj
+ * @calls:
+*/
+function renderConcertInfoPage(artist, eventIndex) {
+	// getDistanceTime()
+	$('.eventPopout > div').remove();
+	let artistDiv = $('<div>', {'class': 'col-4 artistPortrait'});
+	let artistImg = $('<img>', {
+		css: {
+			"background-image": `url(${artist.images[2].url})`,
+		},
+		'class': 'rounded-circle img-responsive circleBorder',
+	});
+	let artistName = $('<div>', {
+		'class':'text-center caption',
+		'text': artist.name,
+	})
+	artistDiv.append(artistImg, artistName);
+	let eventDiv = $('<div>', {'class': 'col-8 card-body'});
+	let eventVenue = $('<div>', {'class': 'eventVenue', text: artist.events[eventIndex]._embedded.venues[0].name});
+	let eventAddress = $('<div>', {'class': 'eventAddress', text: artist.events[eventIndex]._embedded.venues[0].address.line1});
+	let eventCity = $('<div>', {
+		'class': 'eventCity',
+		'text': artist.events[eventIndex]._embedded.venues[0].city.name+', '+
+			artist.events[eventIndex]._embedded.venues[0].state.stateCode+' '+
+			artist.events[eventIndex]._embedded.venues[0].postalCode,
+		});
+	let eventDate = $('<div>', {'class': 'eventDate', 'text': artist.events[eventIndex].dates.start.localDime});
+	let eventTime = $('<div>', {'class': 'eventTime', 'text': 'StartTime: '+artist.events[eventIndex].dates.start.localTime});
+	let eventDistance =  $('<div>', {'class': 'eventDistance', 'text': 'Distance: '+artist.events[eventIndex]._embedded.venues[0].distance} +' miles');
+	eventDiv.append(eventVenue, eventAddress, eventCity, eventDate ,eventTime,eventDistance);
+	let mapDiv = $('<div>', {
+		'id':'map',
+		'class':'col-12',
+	});
+	$('.eventPopout').append(artistDiv, eventDiv, mapDiv);
+	makeMap(currentPos);
+	placeMarker(artist.events[eventIndex]);
+}
+
 /***********************************************************************************************************************
  * renderArtists
  * @param: {object} artists_obj
