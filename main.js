@@ -1,10 +1,9 @@
 //-------------------------------------------------------------------------------
 // start document
 //-------------------------------------------------------------------------------
-
 /**
 * Document ready
-* 
+*
 * Code to run when document has loaded
 */
 $(document).ready(function() {
@@ -14,9 +13,13 @@ $(document).ready(function() {
 /**
  * @function getTopArtists
  * Ajax call to Spotify to get user top artists
- * 
+ *
  * @Param {} user
 */
+$(document).ready(function() {
+	getCurrentPos();
+});
+/*************************************************************************************/
 //var artists = [];
 function getTopArtists(user) {
 	$.ajax({
@@ -33,26 +36,17 @@ function getTopArtists(user) {
         }
     });
 }
-//-------------------------------------------------------------------------------
-/**
- * @function renderArtists
- * 
- * @param {array} artists_array
- * 
-*/
-
+/*************************************************************************************
 function renderArtists(artists_array) {
-    var artistIndex = 0;
-	for(var rowIndex = 0; rowIndex < 3; rowIndex++){
+    for(var rowIndex = 0; rowIndex<3; rowIndex++){
         var rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
-        var indexLimit = artistIndex + 3;
-        for(artistIndex; artistIndex < indexLimit; artistIndex++){
-            var name = artists_array.artists[artistIndex].name;
-            var imageUrl = artists_array.artists[artistIndex].images[2].url;
-            var id = artists_array.artists[artistIndex].id;
+        for(var artistIndex = 0; artistIndex < artists.length; artistIndex++){
+            var name = artists_array[artistIndex].name;
+            var imageUrl = artists_array[artistIndex].image[2].url;
+            var id = artist_array[artistIndex].id;
             var colDiv = $('<div>',{
                 'class': 'col-4'
             });
@@ -66,40 +60,19 @@ function renderArtists(artists_array) {
                 'class': 'text-center caption'
             });
             colDiv.append(img, nameDiv);
-            rowDiv.append(colDiv);
         }
-		$(".artistContainer").append(rowDiv);
-    }
-}
-//-------------------------------------------------------------------------------
-/**
- * @function addClickHandlers
- * 
- * 
- * 
-*/
 
+    }
+
+}
+/*************************************************************************************/
 function addClickHandlers() {
     $('<img>').on('click', showInfo);
 }
-//-------------------------------------------------------------------------------
-/**
- * @function showInfo
- * 
- * 
- * 
-*/
-
+/*************************************************************************************/
 function showInfo() {
 }
-//-------------------------------------------------------------------------------
-/**
- * @function getRelatedArtists
- * 
- * @param {string??} artist
- * 
-*/
-
+/*************************************************************************************/
 function getRelatedArtists(artist) {
     artist = $(this).attr('id');
     var relatedArtists = [];
@@ -119,13 +92,6 @@ function getRelatedArtists(artist) {
         }
     })
 }
-//-------------------------------------------------------------------------------
-/**
- * @function searchArtists
- * 
- * @param {string} input - search term
- * 
-*/
 
 function searchArtists(input) {
     $.ajax({
@@ -141,8 +107,6 @@ function searchArtists(input) {
     })
 }
 
-//-------------------------------------------------------------------------------
-/*
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -726,31 +690,228 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
-*/
-/**
- * @function makeMap creates map 
- * 
- * @param ???
- * 
-*/
 let map;
-function makeMap() {
-	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
+let currentPos = null;
+let geocoder;
+function getCurrentPos() {
+	navigator.geolocation.getCurrentPosition(
+		function(position) {
+		//err
+			currentPos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude,
+			};
+            makeMap(currentPos.lat, currentPos.lng);
+		},
+		function(error) {
+			$('#zipInputContainer').show();
+			addModalKeyDownHandlers();
+			addModalClickHandlers();
+			$('#errorModal').modal('show');
+		}, {
+			enableHighAccuracy: true,
+			timeout: 5000,
+		}
+	);
+}
+function addModalKeyDownHandlers() {
+	$('#zipInput').keydown(function(e){
+		switch(e.which) {
+			case 13:
+				if(checkZipInput($('#zipInput').val())) {
+					$(this).off();
+					addressToLatLng($('#zipInput').val());
+					$('#errorModal').modal('hide');
+				};
+				break;
+		}
+	});
+}
+function addModalClickHandlers() {
+	$('#zipInputContainer button').click(function() {
+		if(checkZipInput($('#zipInput').val())) {
+			$(this).off();
+			 addressToLatLng($('#zipInput').val());
+			$('#errorModal').modal('hide');
+		}
+	});
+}
+function checkZipInput(zip) {
+	if (parseInt(zip).toString() === zip && zip.length === 5){
+		return true;
+	} return false;
+}
+function makeMap(lat = 33.669, lng = -117.823) {
+	var mapCenter = new google.maps.LatLng(lat, lng);
+	console.log(mapCenter);
 	map = new google.maps.Map(document.getElementById('map'),{
 		center:mapCenter,
-		zoom: 12
+		zoom: 13
 	});
 	var marker = new google.maps.Marker({
           position: mapCenter,
           map: map
   });
 }
+function addressToLatLng(address) {
+	geocoder = new google.maps.Geocoder();
+	geocoder.geocode({'address': address} , function(data, status) {
+		if (status === 'OK') {
+			currentPos = {
+				lat: data[0].geometry.location.lat(),
+				lng: data[0].geometry.location.lng(),
+			};
+			makeMap(currentPos.lat, currentPos.lng);
+		} else {
+			$('#errorModal .modal-body').text('Geocode failed: ' + status);
+			$('errorModal').modal('show');
+		}
+	});
+}
 
 //-------------------------------------------------------------------------------
-
+//-------------------------------------------------------------------------------
+//var artists = [];
+/*function getTop9Artists(user) {
+=======
+function getTopArtists(user) {
+  var artists = [];
+>>>>>>> d53838eb7a58fcbf68a475ce51efee51ff879a15
+	$.ajax({
+		dataType: 'json',
+		url: 'https://api.spotify.com/v1/user/top/artists',
+		limit: 9,
+		method: 'GET',
+		success: function (response) {
+			console.log(response);
+			artists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    });
+  return artists;
+}
+//-------------------------------------------------------------------------------
 /**
- * @function getLocalEvents ajax call for TicketMaster local search
- * 
+ * @function renderArtists
+ *
+ * @param {array} artists_array
+ *
+*/
+
+function renderArtists(artists_array) {
+    let artistIndex = 0;
+	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
+        let rowDiv = $('<div>',{
+            'class': 'row mt-3 artistsRow accordion',
+            role: 'tablist'
+        });
+        let indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+            let name = artists_array.artists[artistIndex].name;
+            let imageUrl = artists_array.artists[artistIndex].images[2].url;
+            let id = artists_array.artists[artistIndex].id;
+            let aTag = $("<a>", {
+                "data-toggle": "collapse",
+                "href": "#collapseOne"
+            });
+            let colDiv = $('<div>',{
+                'class': 'col-4'
+            });
+            let img = $('<div>',{
+                css: {"background-image": `url(${imageUrl})`},
+                'class': 'rounded-circle img-responsive w-100 circleBorder',
+                id: id
+            });
+            let nameDiv = $('<div>',{
+                text: name,
+                'class': 'text-center caption'
+            });
+            aTag.append(img, nameDiv)
+            colDiv.append(aTag);
+            rowDiv.append(colDiv);
+        }
+		$(".artistContainer").append(rowDiv);
+    }
+}
+//-------------------------------------------------------------------------------
+/**
+ * @function addClickHandlers
+ *
+ *
+ *
+*/
+
+function addClickHandlers() {
+    $('<img>').on('click', showInfo);
+}
+//-------------------------------------------------------------------------------
+/**
+ * @function showInfo
+ *
+ *
+ *
+*/
+
+function renderRelated(artists_array) {
+
+}
+/*************************************************************************************/
+function addClickHandlers() {
+    $('<img>').on('click', showInfo);
+}
+/*************************************************************************************/
+function showInfo() {
+
+}
+/*************************************************************************************/
+function getRelatedArtists(artist) {
+    artist = $(this).attr('id');
+    var relatedArtists = [];
+    $.ajax({
+        url: 'http://spotify.iamandyong.com/related_artists',
+        dataType: 'json',
+        method: 'POST',
+        limit: 10,
+        data: {
+            artist_id: artist
+        },
+        success: function (response) {
+            console.log(response);
+            relatedArtists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    });
+    return relatedArtists;
+}
+
+function searchArtists(input) {
+    $.ajax({
+        url: "http://spotify.iamandyong.com/search_artists",
+        dataType: 'json',
+        method: 'POST',
+        data: {
+            search_term: input
+        },
+        success: function (response) {
+            console.log(response);
+        }
+    })
+}
+
+/***************************************************************************************************
+ * this is an example of the spotify api return*/
+/**************************************************************************************************/
+/**
+ * ajax call for TicketMaster local search
+ *
+ * @function makeMap creates map
+ *
+ * @param ???
+ *
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
  * @param {string} artist name
  *
@@ -772,10 +933,12 @@ function getLocalEvents (coordObj, artist) {
 //-------------------------------------------------------------------------------
 
 /**
+ * ajax call for TicketMaster Event
+ *
  * @function - ajax call for TicketMaster Event information and pricing
- * 
+ *
  * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
- * 
+ *
 */
 let seatPricing = null;
 function getEventInfo(eventID){
