@@ -744,9 +744,7 @@ function addModalClickHandler() {
 * @return boolean.
 */
 function validateZip(zip) {
-	if (parseInt(zip).toString() === zip && zip.length === 5){
-		return true;
-	} return false;
+	return parseInt(zip).toString() === zip && zip.length === 5 ? true: false;
 }
 /**
 * @function makeMap
@@ -843,7 +841,7 @@ function getDistanceTime(origin, destination) {
 * @param array
 * @return
 */
-function placeMarkers(array) {
+function placeMarkers(obj) {
 
 }
 
