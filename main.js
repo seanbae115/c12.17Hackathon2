@@ -20,31 +20,10 @@ $(document).ready(function() {
 	$('.eventPopoutContainer').slideToggle();
     renderArtists(example);
 });
-//-------------------------------------------------------------------------------
-/**
- * getTopArtists - Ajax call to Spotify to get user top artists
- * @Param {} user
-*/
-//var artists = [];
-function getTopArtists(user) {
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-}
 /***********************************************************************
 * @function getCurrentPos
 *  use google maps API to get current position. If it fails, prompt for and use ZIP code.
-* @param none;
+* @param: {undefined} none;
 * @return object {lat: '34', lng:'44'}
 */
 function getCurrentPos() {
@@ -72,20 +51,20 @@ function getCurrentPos() {
 /**
 * @function addModalHandlers
 *  add keydown and click handler to manage inputting zip code in modal
-* @param none;
+* @param: none;
 */
 function addModalKeyDownHandler() {
 	$('#zipInput').keydown(function(e){
 		switch(e.which) {
 			case 13:
 				if(validateZip($('#zipInput').val())) {
-					addressToLatLng($('#zipInput').val())
+					addressToLatLng($('#zipInput').val());
                     setTimeout(function() {
                         currentPos = tempPos;
                     }, 1000);
                     $('#zipInputContainer').hide();
 					$('#errorModal').modal('hide');
-				};
+				}
 				break;
 		}
 	});
@@ -105,7 +84,7 @@ function addModalClickHandler() {
 /**
 * @function validateZip
 *   ensure zip inputted is 5 in length and only numbers.
-* @param string; numbers
+* @param: string; numbers
 * @return boolean.
 */
 function validateZip(zip) {
@@ -114,7 +93,7 @@ function validateZip(zip) {
 /**
 * @function makeMap
 * constructs map placing a marker at currentPos
-* @param object with keys lat and lng
+* @param: {object} object with keys lat and lng
 * @return
 */
 
@@ -133,7 +112,7 @@ function makeMap(centerPoint) {
 /**
 * @function convertAddress/ZipToLatLng
 * convert input into an object with keys lat and lng
-* @param string address or zip typically
+* @param: {string} address or zip typically
 * @return
 */
 
@@ -203,7 +182,7 @@ function getDistanceTime(origin, destination) {
 /**
 * @function placeMarkers
 * places down markers on map given array of coordinates and info
-* @param array
+* @param: {array}
 * @return
 */
 function placeMarkers(obj) {
@@ -296,7 +275,7 @@ function renderRelated(artists_array) {
 *getTopArtists
 */
 function getTopArtists(user) {
-  var artists = [];
+  let artists = [];
 	$.ajax({
 		dataType: 'json',
 		url: 'https://api.spotify.com/v1/user/top/artists',
