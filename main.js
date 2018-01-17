@@ -14,7 +14,6 @@ $(document).ready(function() {
 
 });
 /*************************************************************************************/
-var artists = [];
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -599,6 +598,7 @@ var example = {
     } ]
 };
 function getTopArtists(user) {
+    var artists = [];
 	$.ajax({
 		dataType: 'json',
 		url: 'https://api.spotify.com/v1/user/top/artists',
@@ -612,6 +612,7 @@ function getTopArtists(user) {
             console.log('error');
         }
     });
+	return artists;
 }
 /*************************************************************************************/
 function renderArtists(artists_array) {
@@ -644,12 +645,17 @@ function renderArtists(artists_array) {
 		$(".artistContainer").append(rowDiv);
     }
 }
+
+function renderRelated(artists_array) {
+
+}
 /*************************************************************************************/
 function addClickHandlers() {
     $('<img>').on('click', showInfo);
 }
 /*************************************************************************************/
 function showInfo() {
+
 }
 /*************************************************************************************/
 function getRelatedArtists(artist) {
@@ -659,6 +665,7 @@ function getRelatedArtists(artist) {
         url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
         method: 'POST',
+        limit: 10,
         data: {
             artist_id: artist
         },
@@ -669,7 +676,8 @@ function getRelatedArtists(artist) {
         error: function (response) {
             console.log('error');
         }
-    })
+    });
+    return relatedArtists;
 }
 
 function searchArtists(input) {
