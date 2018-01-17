@@ -1,8 +1,8 @@
 body {
-  background-color: #4E5257;
+    background-color: #4E5257;
 }
 hr{
-  border-color: #4E5257;
+    border-color: #4E5257;
 }
 #navigation {
   z-index: 5;
@@ -37,9 +37,16 @@ hr{
   height:auto;
 }
 .circleBorder{
-  border: 2px solid;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 0;
+    padding-bottom: 100%;
+    position: relative;
+    width: 100%;
+    border: 2px solid #09E3F5;
 }
 .venueName,
 .dates{
-  font-size: 4vmin;
+    font-size: 4vmin;
 }

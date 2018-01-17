@@ -42,30 +42,35 @@ function getTopArtists(user) {
 */
 
 function renderArtists(artists_array) {
-    var artistIndex = 0;
-	for(var rowIndex = 0; rowIndex < 3; rowIndex++){
-        var rowDiv = $('<div>',{
+    let artistIndex = 0;
+	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
+        let rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
-        var indexLimit = artistIndex + 3;
+        let indexLimit = artistIndex + 3;
         for(artistIndex; artistIndex < indexLimit; artistIndex++){
-            var name = artists_array.artists[artistIndex].name;
-            var imageUrl = artists_array.artists[artistIndex].images[2].url;
-            var id = artists_array.artists[artistIndex].id;
-            var colDiv = $('<div>',{
+            let name = artists_array.artists[artistIndex].name;
+            let imageUrl = artists_array.artists[artistIndex].images[2].url;
+            let id = artists_array.artists[artistIndex].id;
+            let aTag = $("<a>", {
+                "data-toggle": "collapse",
+                "href": "#collapseOne"
+            });
+            let colDiv = $('<div>',{
                 'class': 'col-4'
             });
-            var img = $('<img>',{
-                src: imageUrl,
-                'class': 'rounded-circle border border-primary img-responsive w-100',
+            let img = $('<div>',{
+                css: {"background-image": `url(${imageUrl})`},
+                'class': 'rounded-circle img-responsive w-100 circleBorder',
                 id: id
             });
-            var nameDiv = $('<div>',{
+            let nameDiv = $('<div>',{
                 text: name,
                 'class': 'text-center caption'
             });
-            colDiv.append(img, nameDiv);
+            aTag.append(img, nameDiv)
+            colDiv.append(aTag);
             rowDiv.append(colDiv);
         }
 		$(".artistContainer").append(rowDiv);
