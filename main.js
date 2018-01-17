@@ -261,8 +261,7 @@ function renderOneArtist (artist, rowDiv, rowNum) {
 	    id: id,
 		on: {
 			click: () => {
-				getLocalEvents(currentPos,name);
-
+				getLocalEvents(currentPos,artist);
 				console.log(typeof name);
 			}
 		}
@@ -274,6 +273,7 @@ function renderOneArtist (artist, rowDiv, rowNum) {
 	aTag.append(img, nameDiv);
 	colDiv.append(aTag);
 	rowDiv.append(colDiv);
+	artist.row = rowDiv;
 }
 /***********************************************************************************************************************
  * createArtistInfo -
@@ -373,41 +373,50 @@ function searchArtists(input) {
  * @param: {object, string} coordObj, artist - object with 'lat' & 'lng' properties, each containing a string of numbers
  * @returns: {undefined} none
 */
-
 function getLocalEvents (coordObj, artist) {
 	$.ajax({
 		method: 'GET',
-		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist}`,
+        dataType: 'json',
+		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
 		success:  response => {
-			console.log(response);
+			let eventArray = [];
+			response._embedded.events.forEach( (event) => {
+				eventArray.push(event);
+			});
+			artist.events = eventArray;
+			createInfoDropDown(artist.row);
+
 		},
 		error: response => {
 			console.log(response);
 		}
 	})
 }
-/***********************************************************************************************************************
- * getEventInfo - ajax call for TicketMaster Event information and pricing
- * @params {string} eventID of the specific event !!Could use URL of event from objects returned, just need
- * @returns: {undefined} none
-*/
-let seatPricing = null;
-function getEventInfo(eventID){
-	$.ajax({
-		method: 'GET',
-		url: `https://app.ticketmaster.com/commerce/v2/events/${eventID}/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8`,
-		success:  response => {
-			let prices = [];
-			let objects = response.offers[0].attributes.prices;
-			objects.map( object => prices.push(object.value) );
-			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) );
-			seatPricing = prices
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
-}
+//-------------------------------------------------------------------------------
+// Below function is depricated, due to having the information returned in the event object
+//-------------------------------------------------------------------------------
+// /***********************************************************************************************************************
+//  * getEventInfo - ajax call for TicketMaster Event information and pricing
+//  * @params {string} eventID of the specific event !!Could use URL of event from objects returned, just need
+//  * @returns: {undefined} none
+// */
+// let seatPricing = null;
+// function getEventInfo(eventID){
+// 	$.ajax({
+// 		method: 'GET',
+// 		url: `https://app.ticketmaster.com/commerce/v2/events/${eventID}/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8`,
+// 		success:  response => {
+// 			let prices = [];
+// 			let objects = response.offers[0].attributes.prices;
+// 			objects.map( object => prices.push(object.value) );
+// 			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) );
+// 			seatPricing = prices
+// 		},
+// 		error: response => {
+// 			console.log(response);
+// 		}
+// 	})
+// }
 
 
 /***********************************************************************************************************************
