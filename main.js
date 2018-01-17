@@ -362,24 +362,29 @@ function searchArtists(input) {
  * @returns: {undefined} none
 */
 function getLocalEvents (coordObj, artist) {
-	$.ajax({
-		method: 'GET',
-        dataType: 'json',
-		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
-		success:  response => {
-			if(response.hasOwnProperty('_embedded')){
-				let eventArray = [];
-				response._embedded.events.forEach( (event) => {eventArray.push(event)} );
-				artist.events = eventArray;
-			} else {
-				$(p > '.artist').text('No local events scheduled at this time')
+	if(coordObj !== null){
+		$.ajax({
+			method: 'GET',
+	        dataType: 'json',
+			url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
+			success:  response => {
+				if(response.hasOwnProperty('_embedded')){
+					let eventArray = [];
+					response._embedded.events.forEach( (event) => {eventArray.push(event)} );
+					artist.events = eventArray;
+				} else {
+					// $(p > '.artist').text('No local events scheduled at this time')
+					alert('No information to display')
+				}
+			 	createInfoDropDown(artist.row);
+			},
+			error: response => {
+				console.log(response);
 			}
-		 	createInfoDropDown(artist.row);
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
+		})
+	} else {
+		getCurrentPos();
+	}
 }
 //-------------------------------------------------------------------------------
 // Below function is depricated, due to having the information returned in the event object
