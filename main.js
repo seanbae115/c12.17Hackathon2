@@ -87,7 +87,7 @@ function getRelatedArtists(artist) {
         method: 'POST',
         data: {
             artist_id: artist
-        }
+        },
         success: function (response) {
             console.log(response);
             relatedArtists = (response.artists);
