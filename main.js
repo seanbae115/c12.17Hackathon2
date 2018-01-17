@@ -15,35 +15,6 @@
 //   if (err) console.error(err);
 //   else console.log('Artist albums', data);
 // });
-$.ajax({
-	method: "GET",
-	url: "https://accounts.spotify.com/authorize?client_id=514d4820fc1c42eb9e18c9d9ea28de53&redirect_uri=http:%2F%2Flocalhost:8888%2Fcallback&response_type=token",
-	success: function(response) {
-		console.log(response);
-	},
-	error: function(response) {
-		console.log(response);
-	}
-});
-
-/**
- * Spotify ajax call
- *
- *
- *
-*/
-// $.ajax({
-// 	method: "GET",
-// 	url: "https://accounts.spotify.com/authorize?client_id=514d4820fc1c42eb9e18c9d9ea28de53&redirect_uri=http:%2F%2Flocalhost:8888%2Fcallback&response_type=token",
-// 	success: function(response) {
-// 		console.log(response);
-// 	},
-// 	error: function(response) {
-// 		console.log(response);
-// 	}
-// })
-
-//-------------------------------------------------------------------------------
 
 /**
 * Code to run when document has loaded
@@ -60,7 +31,7 @@ function getTopArtists(user) {
 		dataType: 'json',
 		url: 'https://api.spotify.com/v1/user/top/artists',
 		limit: 9,
-		method: 'GET',
+		method: 'POST',
 		success: function (response) {
 			console.log(response);
 			artists = (response.artists);
@@ -113,7 +84,7 @@ function getRelatedArtists(artist) {
     $.ajax({
         url: 'http://spotify.iamandyong.com/related_artists'
         dataType: 'json',
-        method: 'GET',
+        method: 'POST',
         data: {
             artist_id: artist
         }
@@ -129,9 +100,9 @@ function getRelatedArtists(artist) {
 
 function searchArtists(input) {
     $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists"
+        url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
-        method: 'GET',
+        method: 'POST',
         data: {
             search_term: input
         },
