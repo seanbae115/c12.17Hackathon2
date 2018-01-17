@@ -26,23 +26,6 @@ $.ajax({
 	}
 });
 
-/**
- * Spotify ajax call
- *
- *
- *
-*/
-// $.ajax({
-// 	method: "GET",
-// 	url: "https://accounts.spotify.com/authorize?client_id=514d4820fc1c42eb9e18c9d9ea28de53&redirect_uri=http:%2F%2Flocalhost:8888%2Fcallback&response_type=token",
-// 	success: function(response) {
-// 		console.log(response);
-// 	},
-// 	error: function(response) {
-// 		console.log(response);
-// 	}
-// })
-
 //-------------------------------------------------------------------------------
 
 /**
@@ -70,17 +53,19 @@ function getTopArtists(user) {
         }
     });
 }
-/*************************************************************************************
+/*************************************************************************************/
 function renderArtists(artists_array) {
-    for(var rowIndex = 0; rowIndex<3; rowIndex++){
+    var artistIndex = 0;
+	for(var rowIndex = 0; rowIndex < 3; rowIndex++){
         var rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
-        for(var artistIndex = 0; artistIndex < artists.length; artistIndex++){
-            var name = artists_array[artistIndex].name;
-            var imageUrl = artists_array[artistIndex].image[2].url;
-            var id = artist_array[artistIndex].id;
+        var indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+            var name = artists_array.artists[artistIndex].name;
+            var imageUrl = artists_array.artists[artistIndex].images[2].url;
+            var id = artists_array.artists[artistIndex].id;
             var colDiv = $('<div>',{
                 'class': 'col-4'
             });
@@ -94,10 +79,10 @@ function renderArtists(artists_array) {
                 'class': 'text-center caption'
             });
             colDiv.append(img, nameDiv);
+            rowDiv.append(colDiv);
         }
-
+		$(".artistContainer").append(rowDiv);
     }
-
 }
 /*************************************************************************************/
 function addClickHandlers() {
@@ -111,12 +96,12 @@ function getRelatedArtists(artist) {
     artist = $(this).attr('id');
     var relatedArtists = [];
     $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists'
+        url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
         method: 'GET',
         data: {
             artist_id: artist
-        }
+        },
         success: function (response) {
             console.log(response);
             relatedArtists = (response.artists);
@@ -129,7 +114,7 @@ function getRelatedArtists(artist) {
 
 function searchArtists(input) {
     $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists"
+        url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
         method: 'GET',
         data: {
@@ -141,6 +126,9 @@ function searchArtists(input) {
     })
 }
 
+/***************************************************************************************************
+ * this is an example of the spotify api return
+ */
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -724,6 +712,8 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
+/**************************************************************************************************/
+
 let map;
 function makeMap() {
 	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
@@ -750,24 +740,6 @@ function makeMap() {
 			console.log(response);
         }
     });
-}*/
-
-/*
-function renderArtists(artists) {
-	for(var artistIndex = 0; artistIndex < artist.length; artistIndex++){
-        var name = artist[artistIndex].name;
-        var imageUrl = artist[artistIndex].image[2].url;
-        var img = $('<img>',{
-            src: imageUrl,
-			'class': 'rounded-circle border border-primary img-responsive w-100'
-        });
-        var nameDiv = $('<div>',{
-        	text: name,
-			'class': 'text-center caption'
-		});
-
-	}
-
 }*/
 /**
  * ajax call for TicketMaster local search
