@@ -365,7 +365,7 @@ function getLocalEvents (coordObj, artist) {
 	$.ajax({
 		method: 'GET',
         dataType: 'json',
-		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}`,
+		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
 		success:  response => {
 			let eventArray = [];
 			response._embedded.events.forEach( (event) => {
