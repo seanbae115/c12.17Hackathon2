@@ -33,7 +33,7 @@
         	        <a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick='getCurrentPos()'>Change Location</a>
+                    <a class="nav-link" href="#" onclick='changePosition()'>Change Location</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Stuff</a>
@@ -111,12 +111,12 @@
 	        </button>
 	      </div>
 	      <div class="modal-body">
-					<div class="input-group mb-3" id='zipInputContainer'>
-					  <input type="text" class="form-control" placeholder="Your ZIP Code" aria-label="ZipCode" id='zipInput'>
-					  <div class="input-group-append">
-  				  	<button class="btn btn-outline-secondary" type="button" id='submitBtn'>Submit</button>
-  					</div>
-					</div>
+			<div class="input-group mb-3" id='zipInputContainer'>
+			  <input type="text" class="form-control" placeholder="Your ZIP Code" aria-label="ZipCode" id='zipInput'>
+			  <div class="input-group-append">
+			  	<button class="btn btn-outline-secondary" type="button" id='submitBtn'>Submit</button>
+				</div>
+			</div>
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
