@@ -701,6 +701,7 @@ function getCurrentPos() {
 				lat: position.coords.latitude,
 				lng: position.coords.longitude,
 			};
+            makeMap(currentPos.lat, currentPos.lng);
 		},
 		function(error) {
 			$('#zipInputContainer').show();
@@ -911,7 +912,6 @@ function searchArtists(input) {
  *
  * @param ???
  *
-*/
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
  * @param {string} artist name
  *
