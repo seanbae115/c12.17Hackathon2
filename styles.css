@@ -4,6 +4,9 @@ body {
 hr{
   border-color: #4E5257;
 }
+#navigation {
+  z-index: 5;
+}
 .caption {
   font-size: 4vmin;
   color: rgba(209, 233, 249, 0.89);
