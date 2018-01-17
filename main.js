@@ -20,6 +20,7 @@ $(document).ready(function() {
 	getCurrentPos();
 	$('.eventPopoutContainer').slideToggle();
     renderArtists(example);
+    //getRelatedArtists("3WrFJ7ztbogyGnTHbHJFl2");
     searchClickHandler();
 });
 //-------------------------------------------------------------------------------
@@ -327,20 +328,21 @@ function getTopArtists(user) {
  * @param: {string} artist -
  * @returns: {object} relatedArtists
  */
-function getRelatedArtists(artist) {
-    //artist = $(this).attr('id');
-    let relatedArtists = [];
+function getRelatedArtists(artistID) {
+    //"3WrFJ7ztbogyGnTHbHJFl2"
     $.ajax({
         url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
         method: 'POST',
         limit: 10,
         data: {
-            artist_id: artist
+            artist_id: artistID
         },
         success: function (response) {
             console.log(response);
-            relatedArtists = (response.artists);
+            let relatedArtists = {};
+            relatedArtists.artists = response.data.items;
+            renderArtists(relatedArtists)
         },
         error: function (response) {
             console.log('error');
