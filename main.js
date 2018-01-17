@@ -42,15 +42,17 @@ function getTopArtists(user) {
 */
 
 function renderArtists(artists_array) {
-    for(var rowIndex = 0; rowIndex<3; rowIndex++){
+    var artistIndex = 0;
+	for(var rowIndex = 0; rowIndex < 3; rowIndex++){
         var rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
-        for(var artistIndex = 0; artistIndex < artists.length; artistIndex++){
-            var name = artists_array[artistIndex].name;
-            var imageUrl = artists_array[artistIndex].image[2].url;
-            var id = artist_array[artistIndex].id;
+        var indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+            var name = artists_array.artists[artistIndex].name;
+            var imageUrl = artists_array.artists[artistIndex].images[2].url;
+            var id = artists_array.artists[artistIndex].id;
             var colDiv = $('<div>',{
                 'class': 'col-4'
             });
@@ -64,10 +66,10 @@ function renderArtists(artists_array) {
                 'class': 'text-center caption'
             });
             colDiv.append(img, nameDiv);
+            rowDiv.append(colDiv);
         }
-
+		$(".artistContainer").append(rowDiv);
     }
-
 }
 //-------------------------------------------------------------------------------
 /**
@@ -141,7 +143,6 @@ function searchArtists(input) {
 
 //-------------------------------------------------------------------------------
 /*
-  
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -732,7 +733,6 @@ var example = {
  * @param ???
  * 
 */
-
 let map;
 function makeMap() {
 	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
