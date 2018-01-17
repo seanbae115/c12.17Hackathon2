@@ -1,7 +1,6 @@
 //-------------------------------------------------------------------------------
 // start document
 //-------------------------------------------------------------------------------
-
 /**
 * Document ready
 * 
@@ -17,137 +16,6 @@ $(document).ready(function() {
  * 
  * @Param {} user
 */
-//var artists = [];
-function getTopArtists(user) {
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-}
-//-------------------------------------------------------------------------------
-/**
- * @function renderArtists
- * 
- * @param {array} artists_array
- * 
-*/
-
-function renderArtists(artists_array) {
-    let artistIndex = 0;
-	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
-        let rowDiv = $('<div>',{
-            'class': 'row mt-3 artistsRow accordion',
-            role: 'tablist'
-        });
-        let indexLimit = artistIndex + 3;
-        for(artistIndex; artistIndex < indexLimit; artistIndex++){
-            let name = artists_array.artists[artistIndex].name;
-            let imageUrl = artists_array.artists[artistIndex].images[2].url;
-            let id = artists_array.artists[artistIndex].id;
-            let aTag = $("<a>", {
-                "data-toggle": "collapse",
-                "href": "#collapseOne"
-            });
-            let colDiv = $('<div>',{
-                'class': 'col-4'
-            });
-            let img = $('<div>',{
-                css: {"background-image": `url(${imageUrl})`},
-                'class': 'rounded-circle img-responsive w-100 circleBorder',
-                id: id
-            });
-            let nameDiv = $('<div>',{
-                text: name,
-                'class': 'text-center caption'
-            });
-            aTag.append(img, nameDiv)
-            colDiv.append(aTag);
-            rowDiv.append(colDiv);
-        }
-		$(".artistContainer").append(rowDiv);
-    }
-}
-//-------------------------------------------------------------------------------
-/**
- * @function addClickHandlers
- * 
- * 
- * 
-*/
-
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
-}
-//-------------------------------------------------------------------------------
-/**
- * @function showInfo
- * 
- * 
- * 
-*/
-
-function showInfo() {
-}
-//-------------------------------------------------------------------------------
-/**
- * @function getRelatedArtists
- * 
- * @param {string??} artist
- * 
-*/
-
-function getRelatedArtists(artist) {
-    artist = $(this).attr('id');
-    var relatedArtists = [];
-    $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists',
-        dataType: 'json',
-        method: 'GET',
-        data: {
-            artist_id: artist
-        },
-        success: function (response) {
-            console.log(response);
-            relatedArtists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    })
-}
-//-------------------------------------------------------------------------------
-/**
- * @function searchArtists
- * 
- * @param {string} input - search term
- * 
-*/
-
-function searchArtists(input) {
-    $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists",
-        dataType: 'json',
-        method: 'GET',
-        data: {
-            search_term: input
-        },
-        success: function (response) {
-            console.log(response);
-        }
-    })
-}
-
-//-------------------------------------------------------------------------------
-/*
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -731,6 +599,138 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
+function getTopArtists(user) {
+  var artists = [];
+	$.ajax({
+		dataType: 'json',
+		url: 'https://api.spotify.com/v1/user/top/artists',
+		limit: 9,
+		method: 'GET',
+		success: function (response) {
+			console.log(response);
+			artists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    });
+  return artists;
+}
+//-------------------------------------------------------------------------------
+/**
+ * @function renderArtists
+ * 
+ * @param {array} artists_array
+ * 
+*/
+
+function renderArtists(artists_array) {
+    let artistIndex = 0;
+	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
+        let rowDiv = $('<div>',{
+            'class': 'row mt-3 artistsRow accordion',
+            role: 'tablist'
+        });
+        let indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+            let name = artists_array.artists[artistIndex].name;
+            let imageUrl = artists_array.artists[artistIndex].images[2].url;
+            let id = artists_array.artists[artistIndex].id;
+            let aTag = $("<a>", {
+                "data-toggle": "collapse",
+                "href": "#collapseOne"
+            });
+            let colDiv = $('<div>',{
+                'class': 'col-4'
+            });
+            let img = $('<div>',{
+                css: {"background-image": `url(${imageUrl})`},
+                'class': 'rounded-circle img-responsive w-100 circleBorder',
+                id: id
+            });
+            let nameDiv = $('<div>',{
+                text: name,
+                'class': 'text-center caption'
+            });
+            aTag.append(img, nameDiv)
+            colDiv.append(aTag);
+            rowDiv.append(colDiv);
+        }
+		$(".artistContainer").append(rowDiv);
+    }
+}
+//-------------------------------------------------------------------------------
+/**
+ * @function addClickHandlers
+ * 
+ * 
+ * 
+*/
+
+function addClickHandlers() {
+    $('<img>').on('click', showInfo);
+}
+//-------------------------------------------------------------------------------
+/**
+ * @function showInfo
+ * 
+ * 
+ * 
+*/
+
+function renderRelated(artists_array) {
+
+}
+/*************************************************************************************/
+function addClickHandlers() {
+    $('<img>').on('click', showInfo);
+}
+/*************************************************************************************/
+function showInfo() {
+
+}
+/*************************************************************************************/
+function getRelatedArtists(artist) {
+    artist = $(this).attr('id');
+    var relatedArtists = [];
+    $.ajax({
+        url: 'http://spotify.iamandyong.com/related_artists',
+        dataType: 'json',
+        method: 'POST',
+        limit: 10,
+        data: {
+            artist_id: artist
+        },
+        success: function (response) {
+            console.log(response);
+            relatedArtists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    });
+    return relatedArtists;
+}
+
+function searchArtists(input) {
+    $.ajax({
+        url: "http://spotify.iamandyong.com/search_artists",
+        dataType: 'json',
+        method: 'POST',
+        data: {
+            search_term: input
+        },
+        success: function (response) {
+            console.log(response);
+        }
+    })
+}
+
+/***************************************************************************************************
+ * this is an example of the spotify api return*/
+/**************************************************************************************************/
+
+=======
 */
 /**
  * @function makeMap creates map 
@@ -752,10 +752,7 @@ function makeMap() {
 }
 
 //-------------------------------------------------------------------------------
-
-/**
- * @function getLocalEvents ajax call for TicketMaster local search
- * 
+/* 
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
  * @param {string} artist name
  *
