@@ -10,6 +10,7 @@ let currentPos = null;
 let tempPos = null;
 let geocoder;
 let distMatrix;
+
 /**
 * Document ready
 *
@@ -19,6 +20,7 @@ $(document).ready(function() {
 	getCurrentPos();
 	$('.eventPopoutContainer').slideToggle();
     renderArtists(example);
+    searchClickHandler();
 });
 //-------------------------------------------------------------------------------
 /**
@@ -101,6 +103,14 @@ function addModalClickHandler() {
 			$('#errorModal').modal('hide');
 		}
 	});
+}
+
+function searchClickHandler() {
+    $('.search').on('click',function () {
+        console.log('clicked');
+        var input = $('.searchInput').val();
+        searchArtists(input);
+    })
 }
 /**
 * @function validateZip
@@ -252,6 +262,7 @@ function renderOneArtist (artist, rowDiv, rowNum) {
 		on: {
 			click: () => {
 				getLocalEvents(currentPos,name);
+
 				console.log(typeof name);
 			}
 		}
@@ -310,7 +321,6 @@ function getTopArtists(user) {
             console.log('error');
         }
     });
-  return artists;
 }
 /*********************************************************************************************************************
  *getRelatedArtists -
@@ -318,7 +328,7 @@ function getTopArtists(user) {
  * @returns: {object} relatedArtists
  */
 function getRelatedArtists(artist) {
-    artist = $(this).attr('id');
+    //artist = $(this).attr('id');
     let relatedArtists = [];
     $.ajax({
         url: 'http://spotify.iamandyong.com/related_artists',
@@ -336,24 +346,27 @@ function getRelatedArtists(artist) {
             console.log('error');
         }
     });
-    return relatedArtists;
 }
 /***********************************************************************************************************************
  * searchArtists - ajax call for Spotify from search bar
  * @param: {string} input -
  */
 function searchArtists(input) {
+    let searchedArtist = {};
     $.ajax({
         url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
         method: 'POST',
         data: {
-            search_term: input
+            search_term: input,
+            limit: 10
         },
         success: function (response) {
             console.log(response);
+            searchedArtist.artists = response.data.items;
+            console.log(searchedArtist);
         }
-    })
+    });
 }
 /***********************************************************************************************************************
  * getLocalEvents - ajax call for TicketMaster local search
