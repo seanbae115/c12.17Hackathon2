@@ -40,3 +40,6 @@ hr{
 .dates{
   font-size: 4vmin;
 }
+#zipInputContainer {
+  display:flex;
+}

@@ -51,7 +51,7 @@ $.ajax({
 *
 */
 $(document).ready(function() {
-
+	getCurrentPos();
 });
 /*************************************************************************************/
 //var artists = [];
@@ -111,12 +111,12 @@ function getRelatedArtists(artist) {
     artist = $(this).attr('id');
     var relatedArtists = [];
     $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists'
+        url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
         method: 'GET',
         data: {
             artist_id: artist
-        }
+        },
         success: function (response) {
             console.log(response);
             relatedArtists = (response.artists);
@@ -129,7 +129,7 @@ function getRelatedArtists(artist) {
 
 function searchArtists(input) {
     $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists"
+        url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
         method: 'GET',
         data: {
@@ -725,16 +725,81 @@ var example = {
     } ]
 };
 let map;
-function makeMap() {
-	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
+let currentPos = null;
+let geocoder;
+function getCurrentPos() {
+	navigator.geolocation.getCurrentPosition(
+		function(position) {
+		//err
+			currentPos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude,
+			};
+		},
+		function(error) {
+			$('#zipInputContainer').show();
+			addModalKeyDownHandlers();
+			addModalClickHandlers();
+			$('#errorModal').modal('show');
+		}, {
+			enableHighAccuracy: true,
+			timeout: 5000,
+		}
+	);
+}
+function addModalKeyDownHandlers() {
+	$('#zipInput').keydown(function(e){
+		switch(e.which) {
+			case 13:
+				if(checkZipInput($('#zipInput').val())) {
+					$(this).off();
+					addressToLatLng($('#zipInput').val());
+					$('#errorModal').modal('hide');
+				};
+				break;
+		}
+	});
+}
+function addModalClickHandlers() {
+	$('#zipInputContainer button').click(function() {
+		if(checkZipInput($('#zipInput').val())) {
+			$(this).off();
+			 addressToLatLng($('#zipInput').val());
+			$('#errorModal').modal('hide');
+		}
+	});
+}
+function checkZipInput(zip) {
+	if (parseInt(zip).toString() === zip && zip.length === 5){
+		return true;
+	} return false;
+}
+function makeMap(lat = 33.669, lng = -117.823) {
+	var mapCenter = new google.maps.LatLng(lat, lng);
+	console.log(mapCenter);
 	map = new google.maps.Map(document.getElementById('map'),{
 		center:mapCenter,
-		zoom: 12
+		zoom: 13
 	});
 	var marker = new google.maps.Marker({
           position: mapCenter,
           map: map
   });
+}
+function addressToLatLng(address) {
+	geocoder = new google.maps.Geocoder();
+	geocoder.geocode({'address': address} , function(data, status) {
+		if (status === 'OK') {
+			currentPos = {
+				lat: data[0].geometry.location.lat(),
+				lng: data[0].geometry.location.lng(),
+			};
+			makeMap(currentPos.lat, currentPos.lng);
+		} else {
+			$('#errorModal .modal-body').text('Geocode failed: ' + status);
+			$('errorModal').modal('show');
+		}
+	});
 }
 
 //-------------------------------------------------------------------------------
@@ -771,7 +836,7 @@ function renderArtists(artists) {
 }*/
 /**
  * ajax call for TicketMaster local search
- * 
+ *
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
  * @param {string} artist name
  *
@@ -795,9 +860,9 @@ function getLocalEvents (coordObj, artist) {
 
 /**
  * ajax call for TicketMaster Event
- * 
+ *
  * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
- * 
+ *
 */
 let seatPricing = null;
 function getEventInfo(eventID){
