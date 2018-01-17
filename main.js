@@ -195,17 +195,21 @@ function placeMarkers(obj) {
 */
 function renderArtists(artists_obj) {
     let artistIndex = 0;
-	for(var rowIndex = 0; rowIndex < 4; rowIndex++){
+    let dropDownIndex = 0;
+	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
         var rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
         let indexLimit = artistIndex + 3;
         for(artistIndex; artistIndex < indexLimit; artistIndex++){
-        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv, rowIndex);
+        	let singleArtist = renderOneArtist(artists_obj.artists[artistIndex]);
+        	rowDiv.append(singleArtist);
         }
-        let dropDown = createInfoDropDown(rowIndex);
-        rowDiv.append(dropDown);
+        for (dropDownIndex; dropDownIndex < indexLimit; dropDownIndex++){
+            let dropDown = createInfoDropDown(artists_obj.artists[dropDownIndex]);
+            rowDiv.append(dropDown);
+        }
 		$(".artistContainer").append(rowDiv);
     }
 }
@@ -213,13 +217,13 @@ function renderArtists(artists_obj) {
  * renderOneArtist - renders the artist and their information on DOM
  * @param: {object, DomElement} artist, rowDiv - a single object from the artists_object
 */
-function renderOneArtist (artist, rowDiv, rowNum) {
+function renderOneArtist (artist) {
 	let name = artist.name;
 	let imageUrl = artist.images[2].url;
 	let id = artist.id;
 	let aTag = $("<a>", {
 	    "data-toggle": "collapse",
-	    "href": `#collapse${rowNum}`
+	    "href": `#collapse${artist.name}`
 	});
 	let colDiv = $('<div>',{
 	    'class': 'col-4'
@@ -240,18 +244,17 @@ function renderOneArtist (artist, rowDiv, rowNum) {
 	    'class': 'text-center caption'
 	});
 	aTag.append(img, nameDiv);
-	colDiv.append(aTag);
-	rowDiv.append(colDiv);
+	return colDiv.append(aTag);
 }
 /***********************************************************************************************************************
  * createArtistInfo -
  */
-function createInfoDropDown(currentRow){
+function createInfoDropDown(artist){
     let fullDiv = $("<div>",{
        "class": "col-12 artistInfo",
     });
     let collapseDiv = $("<div>",{
-       id: `collapse${currentRow}`,
+       id: `collapse${artist.name}`,
        "class": "collapse hide",
         role: "tabpanel",
         "aria-labelledby": "headingOne",
@@ -266,10 +269,47 @@ function createInfoDropDown(currentRow){
     return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"))));
 }
 /***********************************************************************************************************************
- *@function renderRelated
+ *@function renderOneRelated
+ * @param: {object} artist
  */
-function renderRelated(artists_array) {
-
+function renderOneRelated(artist) {
+    let name = artist.name;
+    let imageUrl = artist.images[2].url;
+    let id = artist.id;
+    let colDiv = $('<div>',{
+        'class': 'col-3'
+    });
+    let img = $('<div>',{
+        css: {"background-image": `url(${imageUrl})`},
+        'class': 'rounded-circle img-responsive w-100 circleBorder',
+        id: id,
+        on: {
+            click: () => {
+                console.log("Related artist clicked");
+            }
+        }
+    });
+    let nameDiv = $('<div>',{
+        text: name,
+        'class': 'text-center caption'
+    });
+    colDiv.append(img, nameDiv);
+    return rowDiv.append(colDiv);
+}
+/***********************************************************************************************************************
+ *@function renderRelatedArtists
+ */
+function renderRelatedArtists(artistsObj){
+    let title = $("<p>",{
+        "class": "text-center",
+        text: "Related Artists"
+    });
+    let relatedRow = $("<div>",{
+        "class": "row mt-3 relatedArtistRow"
+    });
+    for (var relatedIndex = 0; relatedIndex < 4; relatedIndex++){
+        renderOneArtist(artistsObj.artists[relatedIndex])
+    }
 }
 /***********************************************************************************************************************
 *getTopArtists
