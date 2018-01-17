@@ -344,7 +344,6 @@ function renderOneArtist (artist, rowDiv, rowNum) {
 		on: {
 			click: () => {
 				getLocalEvents(currentPos,artist);
-				console.log(typeof name);
 			}
 		}
 	});
@@ -457,7 +456,8 @@ function searchArtists(input) {
  * @returns: {undefined} none
 */
 function getLocalEvents (coordObj, artist) {
-	if(coordObj !== null){
+	if(coordObj !== null
+		){
 		$.ajax({
 			method: 'GET',
 	        dataType: 'json',
