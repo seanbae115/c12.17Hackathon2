@@ -2,12 +2,21 @@
 // start document
 //-------------------------------------------------------------------------------
 /**
+* Globals: global variables are declared here.
+*
+*/
+let map;
+let currentPos = null;
+let tempPos = null;
+let geocoder;
+let distMatrix;
+/**
 * Document ready
 *
 * Code to run when document has loaded
 */
 $(document).ready(function() {
-	getCurrentPos();
+    getCurrentPos();
 	$('.eventPopoutContainer').slideToggle()
 
 });
@@ -37,9 +46,9 @@ function getTopArtists(user) {
 
 /**
  * @function addClickHandlers
- * 
- * 
- * 
+ *
+ *
+ *
 */
 
 //-------------------------------------------------------------------------------
@@ -667,83 +676,175 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
-let map;
-let currentPos = null;
-let geocoder;
+/**
+* @function getCurrentPos
+*  use google maps API to get current position. If it fails, prompt for and use ZIP code.
+* @param none;
+* @return object {lat: '34', lng:'44'}
+*/
 function getCurrentPos() {
 	navigator.geolocation.getCurrentPosition(
-		function(position) {
-		//err
-			currentPos = {
+		function(position) { //on success
+		    currentPos = {
 				lat: position.coords.latitude,
 				lng: position.coords.longitude,
 			};
-            makeMap(currentPos.lat, currentPos.lng);
 		},
-		function(error) {
+		function(error) { //on failure
 			$('#zipInputContainer').show();
-			addModalKeyDownHandlers();
-			addModalClickHandlers();
+            if(!currentPos) {
+                addModalKeyDownHandler();
+    			addModalClickHandler();
+            }
 			$('#errorModal').modal('show');
-		}, {
-			enableHighAccuracy: true,
+		},
+        {
+			enableHighAccuracy: true, // additional options
 			timeout: 1000,
 		}
 	);
 }
-function addModalKeyDownHandlers() {
+/**
+* @function addModalHandlers
+*  add keydown and click handler to manage inputting zip code in modal
+* @param none;
+*/
+function addModalKeyDownHandler() {
 	$('#zipInput').keydown(function(e){
 		switch(e.which) {
 			case 13:
-				if(checkZipInput($('#zipInput').val())) {
-					$(this).off();
-					addressToLatLng($('#zipInput').val());
+				if(validateZip($('#zipInput').val())) {
+					addressToLatLng($('#zipInput').val())
+                    setTimeout(function() {
+                        currentPos = tempPos;
+                    }, 1000);
+                    $('#zipInputContainer').hide();
 					$('#errorModal').modal('hide');
 				};
 				break;
 		}
 	});
 }
-function addModalClickHandlers() {
+function addModalClickHandler() {
 	$('#zipInputContainer button').click(function() {
-		if(checkZipInput($('#zipInput').val())) {
-			$(this).off();
-			 addressToLatLng($('#zipInput').val());
+		if(validateZip($('#zipInput').val())) {
+			addressToLatLng($('#zipInput').val());
+            setTimeout(function() {
+                currentPos = tempPos;
+            }, 1000);
+            $('#zipInputContainer').hide();
 			$('#errorModal').modal('hide');
 		}
 	});
 }
-function checkZipInput(zip) {
+/**
+* @function validateZip
+*   ensure zip inputted is 5 in length and only numbers.
+* @param string; numbers
+* @return boolean.
+*/
+function validateZip(zip) {
 	if (parseInt(zip).toString() === zip && zip.length === 5){
 		return true;
 	} return false;
 }
-function makeMap(lat = 33.669, lng = -117.823) {
-	var mapCenter = new google.maps.LatLng(lat, lng);
-	console.log(mapCenter);
+/**
+* @function makeMap
+* constructs map placing a marker at currentPos
+* @param object with keys lat and lng
+* @return
+*/
+
+function makeMap(centerPoint) {
+	// var mapCenter = new google.maps.LatLng(lat, lng);
 	map = new google.maps.Map(document.getElementById('map'),{
-		center:mapCenter,
-		zoom: 13
+		center:centerPoint,
+		zoom: 13,
 	});
 	var marker = new google.maps.Marker({
-          position: mapCenter,
-          map: map
+          position: centerPoint,
+          map: map,
   });
 }
+
+/**
+* @function convertAddress/ZipToLatLng
+* convert input into an object with keys lat and lng
+* @param string address or zip typically
+* @return
+*/
+
 function addressToLatLng(address) {
-	geocoder = new google.maps.Geocoder();
+    geocoder ? '' : geocoder = new google.maps.Geocoder();
 	geocoder.geocode({'address': address} , function(data, status) {
 		if (status === 'OK') {
-			currentPos = {
+			tempPos = {
 				lat: data[0].geometry.location.lat(),
 				lng: data[0].geometry.location.lng(),
 			};
-			makeMap(currentPos.lat, currentPos.lng);
+			// makeMap(currentPos.lat, currentPos.lng);
 		} else {
 			$('#errorModal .modal-body').text('Geocode failed: ' + status);
 			$('errorModal').modal('show');
 		}
 	});
+
+}
+
+/**
+* @function getDistanceAndTime
+* calculates driving distance and duration between two points
+* @param object or string origin and dest. inputs using posObj or address strings
+* @return object {distance:00mi,duration:00min}
+*/
+var tempObj;
+function getDistanceTime(origin, destination) {
+    distMatrix ? '': distMatrix = new google.maps.DistanceMatrixService();
+    distMatrix.getDistanceMatrix(
+        {
+            origins: [origin],
+            destinations: [destination],
+            travelMode: 'DRIVING',
+            unitSystem: google.maps.UnitSystem.IMPERIAL,
+            drivingOptions: {
+                departureTime: new Date(Date.now()),
+                trafficModel: 'bestguess',
+            }
+        },
+        function(data, status) {
+            if(status === 'OK') {
+                tempObj = {
+                    destination: data.destinationAddresses[0],
+                    distance: data.rows[0].elements[0].distance.text,
+                    duration: data.rows[0].elements[0].duration.text,
+                }
+            } else {
+                $('#errorModal .modal-body').text('DistMatrix failed: ' + status);
+                $('errorModal').modal('show');
+            }
+        });
+
+        // $.ajax({
+        //   url: 'https://maps.googleapis.com/maps/api/distancematrix/json?'+
+        //   'key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho'+
+        //   '&origins='+origin+
+        //   '&units=imperial'+
+        //   '&destinations='+destination,
+        //   type: "GET",
+        //   dataType: 'json',
+        //   success: function(data) {
+        //     console.log(data);
+        //   }
+        // });
+}
+/**
+* @function placeMarkers
+* places down markers on map given array of coordinates and info
+* @param array
+* @return
+*/
+function placeMarkers(array) {
+
 }
 
 //-------------------------------------------------------------------------------
@@ -793,9 +894,9 @@ function renderArtists(artists_obj) {
 } //renderArtists
 /**
  * @function renderOneArtist - renders the artist and their information on DOM
- * 
+ *
  * @param {object} artist - a single object from the artists_object
- * 
+ *
 */
 function renderOneArtist (artist, rowDiv) {
 	let name = artist.name;
