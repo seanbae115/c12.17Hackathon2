@@ -6,17 +6,6 @@
  * Create new instance of spotifyApi from the js file...what next??
  *
  *
-*/
-// var spotifyApi = new SpotifyWebApi();
-
-// spotifyApi.setAccessToken('AQCYrCIDSLYbQSfMRGISNh-VquWKE-P_qF3NyerO3lz25bxRoo_5n00nRrBK3_f9IfjWv1clNHZULfM2')
-
-// spotifyApi.getArtistAlbums('43ZHCT0cAZBISjO8DG9PnE', function(err, data) {
-//   if (err) console.error(err);
-//   else console.log('Artist albums', data);
-// });
-
-/**
 * Code to run when document has loaded
 * @function
 *
@@ -25,93 +14,7 @@ $(document).ready(function() {
 
 });
 /*************************************************************************************/
-//var artists = [];
-function getTopArtists(user) {
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'POST',
-		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-}
-/*************************************************************************************
-function renderArtists(artists_array) {
-    for(var rowIndex = 0; rowIndex<3; rowIndex++){
-        var rowDiv = $('<div>',{
-            'class': 'row mt-3 artistsRow accordion',
-            role: 'tablist'
-        });
-        for(var artistIndex = 0; artistIndex < artists.length; artistIndex++){
-            var name = artists_array[artistIndex].name;
-            var imageUrl = artists_array[artistIndex].image[2].url;
-            var id = artist_array[artistIndex].id;
-            var colDiv = $('<div>',{
-                'class': 'col-4'
-            });
-            var img = $('<img>',{
-                src: imageUrl,
-                'class': 'rounded-circle border border-primary img-responsive w-100',
-                id: id
-            });
-            var nameDiv = $('<div>',{
-                text: name,
-                'class': 'text-center caption'
-            });
-            colDiv.append(img, nameDiv);
-        }
-
-    }
-
-}
-/*************************************************************************************/
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
-}
-/*************************************************************************************/
-function showInfo() {
-}
-/*************************************************************************************/
-function getRelatedArtists(artist) {
-    artist = $(this).attr('id');
-    var relatedArtists = [];
-    $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists'
-        dataType: 'json',
-        method: 'POST',
-        data: {
-            artist_id: artist
-        },
-        success: function (response) {
-            console.log(response);
-            relatedArtists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    })
-}
-
-function searchArtists(input) {
-    $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists",
-        dataType: 'json',
-        method: 'POST',
-        data: {
-            search_term: input
-        },
-        success: function (response) {
-            console.log(response);
-        }
-    })
-}
-
+var artists = [];
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -695,6 +598,98 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
+function getTopArtists(user) {
+	$.ajax({
+		dataType: 'json',
+		url: 'https://api.spotify.com/v1/user/top/artists',
+		limit: 9,
+		method: 'POST',
+		success: function (response) {
+			console.log(response);
+			artists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    });
+}
+/*************************************************************************************/
+function renderArtists(artists_array) {
+    var artistIndex = 0;
+	for(var rowIndex = 0; rowIndex < 3; rowIndex++){
+        var rowDiv = $('<div>',{
+            'class': 'row mt-3 artistsRow accordion',
+            role: 'tablist'
+        });
+        var indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+            var name = artists_array.artists[artistIndex].name;
+            var imageUrl = artists_array.artists[artistIndex].images[2].url;
+            var id = artists_array.artists[artistIndex].id;
+            var colDiv = $('<div>',{
+                'class': 'col-4'
+            });
+            var img = $('<img>',{
+                src: imageUrl,
+                'class': 'rounded-circle border border-primary img-responsive w-100',
+                id: id
+            });
+            var nameDiv = $('<div>',{
+                text: name,
+                'class': 'text-center caption'
+            });
+            colDiv.append(img, nameDiv);
+            rowDiv.append(colDiv);
+        }
+		$(".artistContainer").append(rowDiv);
+    }
+}
+/*************************************************************************************/
+function addClickHandlers() {
+    $('<img>').on('click', showInfo);
+}
+/*************************************************************************************/
+function showInfo() {
+}
+/*************************************************************************************/
+function getRelatedArtists(artist) {
+    artist = $(this).attr('id');
+    var relatedArtists = [];
+    $.ajax({
+        url: 'http://spotify.iamandyong.com/related_artists',
+        dataType: 'json',
+        method: 'POST',
+        data: {
+            artist_id: artist
+        },
+        success: function (response) {
+            console.log(response);
+            relatedArtists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    })
+}
+
+function searchArtists(input) {
+    $.ajax({
+        url: "http://spotify.iamandyong.com/search_artists",
+        dataType: 'json',
+        method: 'POST',
+        data: {
+            search_term: input
+        },
+        success: function (response) {
+            console.log(response);
+        }
+    })
+}
+
+/***************************************************************************************************
+ * this is an example of the spotify api return*/
+/**************************************************************************************************/
+
 let map;
 function makeMap() {
 	var mapCenter = new google.maps.LatLng(33.6694649,  -117.8231107);
@@ -709,38 +704,7 @@ function makeMap() {
 }
 
 //-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-//var artists = [];
-/*function getTop9Artists(user) {
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-        }
-    });
-}*/
-
 /*
-function renderArtists(artists) {
-	for(var artistIndex = 0; artistIndex < artist.length; artistIndex++){
-        var name = artist[artistIndex].name;
-        var imageUrl = artist[artistIndex].image[2].url;
-        var img = $('<img>',{
-            src: imageUrl,
-			'class': 'rounded-circle border border-primary img-responsive w-100'
-        });
-        var nameDiv = $('<div>',{
-        	text: name,
-			'class': 'text-center caption'
-		});
-
-	}
-
-}*/
-/**
  * ajax call for TicketMaster local search
  * 
  * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
