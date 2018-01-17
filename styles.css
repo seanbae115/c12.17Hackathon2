@@ -27,6 +27,7 @@ hr{
     z-index: 2;
     flex-wrap: wrap;
     display: flex;
+    position:absolute;
 }
 .eventPopoutContainer {
     width: 100%;
