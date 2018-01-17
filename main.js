@@ -16,15 +16,13 @@ let distMatrix;
 * Code to run when document has loaded
 */
 $(document).ready(function() {
-    getCurrentPos();
-	$('.eventPopoutContainer').slideToggle()
-
+	getCurrentPos();
+	$('.eventPopoutContainer').slideToggle();
+    renderArtists(example);
 });
 //-------------------------------------------------------------------------------
 /**
- * @function getTopArtists
- * Ajax call to Spotify to get user top artists
- *
+ * getTopArtists - Ajax call to Spotify to get user top artists
  * @Param {} user
 */
 //var artists = [];
@@ -43,29 +41,290 @@ function getTopArtists(user) {
         }
     });
 }
-
+/***********************************************************************
+* @function getCurrentPos
+*  use google maps API to get current position. If it fails, prompt for and use ZIP code.
+* @param none;
+* @return object {lat: '34', lng:'44'}
+*/
+function getCurrentPos() {
+	navigator.geolocation.getCurrentPosition(
+		function(position) { //on success
+		    currentPos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude,
+			};
+		},
+		function(error) { //on failure
+			$('#zipInputContainer').show();
+            if(!currentPos) {
+                addModalKeyDownHandler();
+    			addModalClickHandler();
+            }
+			$('#errorModal').modal('show');
+		},
+        {
+			enableHighAccuracy: true, // additional options
+			timeout: 1000,
+		}
+	);
+}
 /**
- * @function addClickHandlers
- *
- *
- *
+* @function addModalHandlers
+*  add keydown and click handler to manage inputting zip code in modal
+* @param none;
+*/
+function addModalKeyDownHandler() {
+	$('#zipInput').keydown(function(e){
+		switch(e.which) {
+			case 13:
+				if(validateZip($('#zipInput').val())) {
+					addressToLatLng($('#zipInput').val())
+                    setTimeout(function() {
+                        currentPos = tempPos;
+                    }, 1000);
+                    $('#zipInputContainer').hide();
+					$('#errorModal').modal('hide');
+				};
+				break;
+		}
+	});
+}
+function addModalClickHandler() {
+	$('#zipInputContainer button').click(function() {
+		if(validateZip($('#zipInput').val())) {
+			addressToLatLng($('#zipInput').val());
+            setTimeout(function() {
+                currentPos = tempPos;
+            }, 1000);
+            $('#zipInputContainer').hide();
+			$('#errorModal').modal('hide');
+		}
+	});
+}
+/**
+* @function validateZip
+*   ensure zip inputted is 5 in length and only numbers.
+* @param string; numbers
+* @return boolean.
+*/
+function validateZip(zip) {
+	return parseInt(zip).toString() === zip && zip.length === 5 ? true: false;
+}
+/**
+* @function makeMap
+* constructs map placing a marker at currentPos
+* @param object with keys lat and lng
+* @return
 */
 
-//-------------------------------------------------------------------------------
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
+function makeMap(centerPoint) {
+	// var mapCenter = new google.maps.LatLng(lat, lng);
+	map = new google.maps.Map(document.getElementById('map'),{
+		center:centerPoint,
+		zoom: 13,
+	});
+	var marker = new google.maps.Marker({
+          position: centerPoint,
+          map: map,
+  });
 }
-/*************************************************************************************/
-function showInfo() {
+
+/**
+* @function convertAddress/ZipToLatLng
+* convert input into an object with keys lat and lng
+* @param string address or zip typically
+* @return
+*/
+
+function addressToLatLng(address) {
+    geocoder ? '' : geocoder = new google.maps.Geocoder();
+	geocoder.geocode({'address': address} , function(data, status) {
+		if (status === 'OK') {
+			tempPos = {
+				lat: data[0].geometry.location.lat(),
+				lng: data[0].geometry.location.lng(),
+			};
+			// makeMap(currentPos.lat, currentPos.lng);
+		} else {
+			$('#errorModal .modal-body').text('Geocode failed: ' + status);
+			$('errorModal').modal('show');
+		}
+	});
+
 }
-/*************************************************************************************/
+
+/**
+* @function getDistanceAndTime
+* calculates driving distance and duration between two points
+* @param object or string origin and dest. inputs using posObj or address strings
+* @return object {distance:00mi,duration:00min}
+*/
+var tempObj;
+function getDistanceTime(origin, destination) {
+    distMatrix ? '': distMatrix = new google.maps.DistanceMatrixService();
+    distMatrix.getDistanceMatrix(
+        {
+            origins: [origin],
+            destinations: [destination],
+            travelMode: 'DRIVING',
+            unitSystem: google.maps.UnitSystem.IMPERIAL,
+            drivingOptions: {
+                departureTime: new Date(Date.now()),
+                trafficModel: 'bestguess',
+            }
+        },
+        function(data, status) {
+            if(status === 'OK') {
+                tempObj = {
+                    destination: data.destinationAddresses[0],
+                    distance: data.rows[0].elements[0].distance.text,
+                    duration: data.rows[0].elements[0].duration.text,
+                }
+            } else {
+                $('#errorModal .modal-body').text('DistMatrix failed: ' + status);
+                $('errorModal').modal('show');
+            }
+        });
+
+        // $.ajax({
+        //   url: 'https://maps.googleapis.com/maps/api/distancematrix/json?'+
+        //   'key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho'+
+        //   '&origins='+origin+
+        //   '&units=imperial'+
+        //   '&destinations='+destination,
+        //   type: "GET",
+        //   dataType: 'json',
+        //   success: function(data) {
+        //     console.log(data);
+        //   }
+        // });
+}
+/**
+* @function placeMarkers
+* places down markers on map given array of coordinates and info
+* @param array
+* @return
+*/
+function placeMarkers(obj) {
+
+}
+/***********************************************************************************************************************
+ * renderArtists
+ * @param: {object} artists_obj
+ * @calls: renderOneArtist, createInfoDropDown
+*/
+function renderArtists(artists_obj) {
+    let artistIndex = 0;
+	for(var rowIndex = 0; rowIndex < 4; rowIndex++){
+        var rowDiv = $('<div>',{
+            'class': 'row mt-3 artistsRow accordion',
+            role: 'tablist'
+        });
+        let indexLimit = artistIndex + 3;
+        for(artistIndex; artistIndex < indexLimit; artistIndex++){
+        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv, rowIndex);
+        }
+        let dropDown = createInfoDropDown(rowIndex);
+        rowDiv.append(dropDown);
+		$(".artistContainer").append(rowDiv);
+    }
+}
+/***********************************************************************************************************************
+ * renderOneArtist - renders the artist and their information on DOM
+ * @param: {object, DomElement} artist, rowDiv - a single object from the artists_object
+*/
+function renderOneArtist (artist, rowDiv, rowNum) {
+	let name = artist.name;
+	let imageUrl = artist.images[2].url;
+	let id = artist.id;
+	let aTag = $("<a>", {
+	    "data-toggle": "collapse",
+	    "href": `#collapse${rowNum}`
+	});
+	let colDiv = $('<div>',{
+	    'class': 'col-4'
+	});
+	let img = $('<div>',{
+	    css: {"background-image": `url(${imageUrl})`},
+	    'class': 'rounded-circle img-responsive w-100 circleBorder',
+	    id: id,
+		on: {
+			click: () => {
+				getLocalEvents(currentPos,name);
+				console.log(typeof name);
+			}
+		}
+	});
+	let nameDiv = $('<div>',{
+	    text: name,
+	    'class': 'text-center caption'
+	});
+	aTag.append(img, nameDiv);
+	colDiv.append(aTag);
+	rowDiv.append(colDiv);
+}
+/***********************************************************************************************************************
+ * createArtistInfo -
+ */
+function createInfoDropDown(currentRow){
+    let fullDiv = $("<div>",{
+       "class": "col-12 artistInfo",
+    });
+    let collapseDiv = $("<div>",{
+       id: `collapse${currentRow}`,
+       "class": "collapse hide",
+        role: "tabpanel",
+        "aria-labelledby": "headingOne",
+        "data-parent": "#accordion"
+    });
+    let body = $("<div>", {
+       "class": "card-body"
+    });
+    let calRow = $("<div>", {
+       "class": "row mt-3"
+    });
+    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"))));
+}
+/***********************************************************************************************************************
+ *@function renderRelated
+ */
+function renderRelated(artists_array) {
+
+}
+/***********************************************************************************************************************
+*getTopArtists
+*/
+function getTopArtists(user) {
+  var artists = [];
+	$.ajax({
+		dataType: 'json',
+		url: 'https://api.spotify.com/v1/user/top/artists',
+		limit: 9,
+		method: 'GET',
+		success: function (response) {
+			console.log(response);
+			artists = (response.artists);
+        },
+        error: function (response) {
+            console.log('error');
+        }
+    });
+  return artists;
+}
+/*********************************************************************************************************************
+ *getRelatedArtists -
+ * @param: {string} artist -
+ * @returns: {object} relatedArtists
+ */
 function getRelatedArtists(artist) {
     artist = $(this).attr('id');
-    var relatedArtists = [];
+    let relatedArtists = [];
     $.ajax({
         url: 'http://spotify.iamandyong.com/related_artists',
         dataType: 'json',
-        method: 'GET',
+        method: 'POST',
+        limit: 10,
         data: {
             artist_id: artist
         },
@@ -76,14 +335,18 @@ function getRelatedArtists(artist) {
         error: function (response) {
             console.log('error');
         }
-    })
+    });
+    return relatedArtists;
 }
-
+/***********************************************************************************************************************
+ * searchArtists - ajax call for Spotify from search bar
+ * @param: {string} input -
+ */
 function searchArtists(input) {
     $.ajax({
         url: "http://spotify.iamandyong.com/search_artists",
         dataType: 'json',
-        method: 'GET',
+        method: 'POST',
         data: {
             search_term: input
         },
@@ -92,7 +355,53 @@ function searchArtists(input) {
         }
     })
 }
+/***********************************************************************************************************************
+ * getLocalEvents - ajax call for TicketMaster local search
+ * @param: {object, string} coordObj, artist - object with 'lat' & 'lng' properties, each containing a string of numbers
+ * @returns: {undefined} none
+*/
 
+function getLocalEvents (coordObj, artist) {
+	$.ajax({
+		method: 'GET',
+		url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist}`,
+		success:  response => {
+			console.log(response);
+		},
+		error: response => {
+			console.log(response);
+		}
+	})
+}
+/***********************************************************************************************************************
+ * getEventInfo - ajax call for TicketMaster Event information and pricing
+ * @params {string} eventID of the specific event !!Could use URL of event from objects returned, just need
+ * @returns: {undefined} none
+*/
+let seatPricing = null;
+function getEventInfo(eventID){
+	$.ajax({
+		method: 'GET',
+		url: `https://app.ticketmaster.com/commerce/v2/events/${eventID}/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8`,
+		success:  response => {
+			let prices = [];
+			let objects = response.offers[0].attributes.prices;
+			objects.map( object => prices.push(object.value) );
+			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) );
+			seatPricing = prices
+		},
+		error: response => {
+			console.log(response);
+		}
+	})
+}
+
+
+/***********************************************************************************************************************
+ * *********************************************************************************************************************
+ * this is an example of the spotify api return
+ * *********************************************************************************************************************
+***********************************************************************************************************************/
 var example = {
     "artists" : [ {
         "external_urls" : {
@@ -676,377 +985,3 @@ var example = {
         "uri" : "spotify:artist:0Ol3Jol2T3lZZVLNNzWPhj"
     } ]
 };
-/**
-* @function getCurrentPos
-*  use google maps API to get current position. If it fails, prompt for and use ZIP code.
-* @param none;
-* @return object {lat: '34', lng:'44'}
-*/
-function getCurrentPos() {
-	navigator.geolocation.getCurrentPosition(
-		function(position) { //on success
-		    currentPos = {
-				lat: position.coords.latitude,
-				lng: position.coords.longitude,
-			};
-		},
-		function(error) { //on failure
-			$('#zipInputContainer').show();
-            if(!currentPos) {
-                addModalKeyDownHandler();
-    			addModalClickHandler();
-            }
-			$('#errorModal').modal('show');
-		},
-        {
-			enableHighAccuracy: true, // additional options
-			timeout: 1000,
-		}
-	);
-}
-/**
-* @function addModalHandlers
-*  add keydown and click handler to manage inputting zip code in modal
-* @param none;
-*/
-function addModalKeyDownHandler() {
-	$('#zipInput').keydown(function(e){
-		switch(e.which) {
-			case 13:
-				if(validateZip($('#zipInput').val())) {
-					addressToLatLng($('#zipInput').val())
-                    setTimeout(function() {
-                        currentPos = tempPos;
-                    }, 1000);
-                    $('#zipInputContainer').hide();
-					$('#errorModal').modal('hide');
-				};
-				break;
-		}
-	});
-}
-function addModalClickHandler() {
-	$('#zipInputContainer button').click(function() {
-		if(validateZip($('#zipInput').val())) {
-			addressToLatLng($('#zipInput').val());
-            setTimeout(function() {
-                currentPos = tempPos;
-            }, 1000);
-            $('#zipInputContainer').hide();
-			$('#errorModal').modal('hide');
-		}
-	});
-}
-/**
-* @function validateZip
-*   ensure zip inputted is 5 in length and only numbers.
-* @param string; numbers
-* @return boolean.
-*/
-function validateZip(zip) {
-	return parseInt(zip).toString() === zip && zip.length === 5 ? true: false;
-}
-/**
-* @function makeMap
-* constructs map placing a marker at currentPos
-* @param object with keys lat and lng
-* @return
-*/
-
-function makeMap(centerPoint) {
-	// var mapCenter = new google.maps.LatLng(lat, lng);
-	map = new google.maps.Map(document.getElementById('map'),{
-		center:centerPoint,
-		zoom: 13,
-	});
-	var marker = new google.maps.Marker({
-          position: centerPoint,
-          map: map,
-  });
-}
-
-/**
-* @function convertAddress/ZipToLatLng
-* convert input into an object with keys lat and lng
-* @param string address or zip typically
-* @return
-*/
-
-function addressToLatLng(address) {
-    geocoder ? '' : geocoder = new google.maps.Geocoder();
-	geocoder.geocode({'address': address} , function(data, status) {
-		if (status === 'OK') {
-			tempPos = {
-				lat: data[0].geometry.location.lat(),
-				lng: data[0].geometry.location.lng(),
-			};
-			// makeMap(currentPos.lat, currentPos.lng);
-		} else {
-			$('#errorModal .modal-body').text('Geocode failed: ' + status);
-			$('errorModal').modal('show');
-		}
-	});
-
-}
-
-/**
-* @function getDistanceAndTime
-* calculates driving distance and duration between two points
-* @param object or string origin and dest. inputs using posObj or address strings
-* @return object {distance:00mi,duration:00min}
-*/
-var tempObj;
-function getDistanceTime(origin, destination) {
-    distMatrix ? '': distMatrix = new google.maps.DistanceMatrixService();
-    distMatrix.getDistanceMatrix(
-        {
-            origins: [origin],
-            destinations: [destination],
-            travelMode: 'DRIVING',
-            unitSystem: google.maps.UnitSystem.IMPERIAL,
-            drivingOptions: {
-                departureTime: new Date(Date.now()),
-                trafficModel: 'bestguess',
-            }
-        },
-        function(data, status) {
-            if(status === 'OK') {
-                tempObj = {
-                    destination: data.destinationAddresses[0],
-                    distance: data.rows[0].elements[0].distance.text,
-                    duration: data.rows[0].elements[0].duration.text,
-                }
-            } else {
-                $('#errorModal .modal-body').text('DistMatrix failed: ' + status);
-                $('errorModal').modal('show');
-            }
-        });
-
-        // $.ajax({
-        //   url: 'https://maps.googleapis.com/maps/api/distancematrix/json?'+
-        //   'key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho'+
-        //   '&origins='+origin+
-        //   '&units=imperial'+
-        //   '&destinations='+destination,
-        //   type: "GET",
-        //   dataType: 'json',
-        //   success: function(data) {
-        //     console.log(data);
-        //   }
-        // });
-}
-/**
-* @function placeMarkers
-* places down markers on map given array of coordinates and info
-* @param array
-* @return
-*/
-function placeMarkers(obj) {
-
-}
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-//var artists = [];
-/*function getTop9Artists(user) {
-=======
-function getTopArtists(user) {
-  var artists = [];
->>>>>>> d53838eb7a58fcbf68a475ce51efee51ff879a15
-	$.ajax({
-		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
-		limit: 9,
-		method: 'GET',
-		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-  return artists;
-}
-//-------------------------------------------------------------------------------
-/**
- * @function renderArtists
- *
- * @param {array} artists_array
- *
-*/
-
-function renderArtists(artists_obj) {
-    let artistIndex = 0;
-	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
-        var rowDiv = $('<div>',{
-            'class': 'row mt-3 artistsRow accordion',
-            role: 'tablist'
-        });
-        let indexLimit = artistIndex + 3;
-        for(artistIndex; artistIndex < indexLimit; artistIndex++){
-        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv)
-        }
-		$(".artistContainer").append(rowDiv);
-    }
-} //renderArtists
-/**
- * @function renderOneArtist - renders the artist and their information on DOM
- *
- * @param {object} artist - a single object from the artists_object
- *
-*/
-function renderOneArtist (artist, rowDiv) {
-	let name = artist.name;
-	let imageUrl = artist.images[2].url;
-	let id = artist.id;
-	let aTag = $("<a>", {
-	    "data-toggle": "collapse",
-	    "href": "#"
-	});
-	let colDiv = $('<div>',{
-	    'class': 'col-4'
-	});
-	let img = $('<div>',{
-	    css: {"background-image": `url(${imageUrl})`},
-	    'class': 'rounded-circle img-responsive w-100 circleBorder',
-	    id: id,
-		on: {
-			click: () => {
-				getLocalEvents(currentPos,name);
-				console.log(typeof name);
-			}
-		}
-	});
-	let nameDiv = $('<div>',{
-	    text: name,
-	    'class': 'text-center caption'
-	});
-	aTag.append(img, nameDiv)
-	colDiv.append(aTag);
-	rowDiv.append(colDiv);
-} //function renderOneArtist
-
-//-------------------------------------------------------------------------------
-/**
- * @function addClickHandlers
- *
- *
- *
-*/
-
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
-}
-//-------------------------------------------------------------------------------
-/**
- * @function showInfo
- *
- *
- *
-*/
-
-function renderRelated(artists_array) {
-
-}
-/*************************************************************************************/
-function addClickHandlers() {
-    $('<img>').on('click', showInfo);
-}
-/*************************************************************************************/
-function showInfo() {
-
-}
-/*************************************************************************************/
-function getRelatedArtists(artist) {
-    artist = $(this).attr('id');
-    var relatedArtists = [];
-    $.ajax({
-        url: 'http://spotify.iamandyong.com/related_artists',
-        dataType: 'json',
-        method: 'POST',
-        limit: 10,
-        data: {
-            artist_id: artist
-        },
-        success: function (response) {
-            console.log(response);
-            relatedArtists = (response.artists);
-        },
-        error: function (response) {
-            console.log('error');
-        }
-    });
-    return relatedArtists;
-}
-
-function searchArtists(input) {
-    $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists",
-        dataType: 'json',
-        method: 'POST',
-        data: {
-            search_term: input
-        },
-        success: function (response) {
-            console.log(response);
-        }
-    })
-}
-
-/***************************************************************************************************
- * this is an example of the spotify api return*/
-/**************************************************************************************************/
-/**
- * ajax call for TicketMaster local search
- *
- * @function makeMap creates map
- *
- * @param ???
- *
- * @param {object} coorObj object with 'lat' & 'lng' properties, each containing a string of numbers
- * @param {string} artist name
- *
-*/
-
-function getLocalEvents (coordObj, artist) {
-	$.ajax({
-		method: 'GET',
-		url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=' + coordObj.lat +','+coordObj.lng +'&radius=100&unit=miles&keyword='+ artist,
-		success:  response => {
-			console.log(response);
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
-} //function getLocalEvents
-
-//-------------------------------------------------------------------------------
-
-/**
- * ajax call for TicketMaster Event
- *
- * @function - ajax call for TicketMaster Event information and pricing
- *
- * @params {eventID} id of the specific event !!Could use URL of event from objects returned, just need
- *
-*/
-let seatPricing = null;
-function getEventInfo(eventID){
-	$.ajax({
-		method: 'GET',
-		url: 'https://app.ticketmaster.com/commerce/v2/events/'+ eventID + '/offers.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8',
-		success:  response => {
-			let prices = [];
-			let objects = response.offers[0].attributes.prices;
-			objects.map( object => prices.push(object.value) );
-			prices.sort( (a,b) => parseFloat(a)-parseFloat(b) )
-			seatPricing = prices
-		},
-		error: response => {
-			console.log(response);
-		}
-	})
-} //function getEventInfo
-//-------------------------------------------------------------------------------
