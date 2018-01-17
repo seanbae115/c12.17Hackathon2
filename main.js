@@ -8,6 +8,8 @@
 */
 $(document).ready(function() {
 	getCurrentPos();
+	$('.eventPopoutContainer').slideToggle()
+
 });
 //-------------------------------------------------------------------------------
 /**
@@ -32,36 +34,15 @@ function getTopArtists(user) {
         }
     });
 }
-/*************************************************************************************
-function renderArtists(artists_array) {
-    for(var rowIndex = 0; rowIndex<3; rowIndex++){
-        var rowDiv = $('<div>',{
-            'class': 'row mt-3 artistsRow accordion',
-            role: 'tablist'
-        });
-        for(var artistIndex = 0; artistIndex < artists.length; artistIndex++){
-            var name = artists_array[artistIndex].name;
-            var imageUrl = artists_array[artistIndex].image[2].url;
-            var id = artist_array[artistIndex].id;
-            var colDiv = $('<div>',{
-                'class': 'col-4'
-            });
-            var img = $('<img>',{
-                src: imageUrl,
-                'class': 'rounded-circle border border-primary img-responsive w-100',
-                id: id
-            });
-            var nameDiv = $('<div>',{
-                text: name,
-                'class': 'text-center caption'
-            });
-            colDiv.append(img, nameDiv);
-        }
 
-    }
+/**
+ * @function addClickHandlers
+ * 
+ * 
+ * 
+*/
 
-}
-/*************************************************************************************/
+//-------------------------------------------------------------------------------
 function addClickHandlers() {
     $('<img>').on('click', showInfo);
 }
@@ -706,7 +687,7 @@ function getCurrentPos() {
 			$('#errorModal').modal('show');
 		}, {
 			enableHighAccuracy: true,
-			timeout: 5000,
+			timeout: 1000,
 		}
 	);
 }
@@ -796,41 +777,57 @@ function getTopArtists(user) {
  *
 */
 
-function renderArtists(artists_array) {
+function renderArtists(artists_obj) {
     let artistIndex = 0;
 	for(let rowIndex = 0; rowIndex < 4; rowIndex++){
-        let rowDiv = $('<div>',{
+        var rowDiv = $('<div>',{
             'class': 'row mt-3 artistsRow accordion',
             role: 'tablist'
         });
         let indexLimit = artistIndex + 3;
         for(artistIndex; artistIndex < indexLimit; artistIndex++){
-            let name = artists_array.artists[artistIndex].name;
-            let imageUrl = artists_array.artists[artistIndex].images[2].url;
-            let id = artists_array.artists[artistIndex].id;
-            let aTag = $("<a>", {
-                "data-toggle": "collapse",
-                "href": "#collapseOne"
-            });
-            let colDiv = $('<div>',{
-                'class': 'col-4'
-            });
-            let img = $('<div>',{
-                css: {"background-image": `url(${imageUrl})`},
-                'class': 'rounded-circle img-responsive w-100 circleBorder',
-                id: id
-            });
-            let nameDiv = $('<div>',{
-                text: name,
-                'class': 'text-center caption'
-            });
-            aTag.append(img, nameDiv)
-            colDiv.append(aTag);
-            rowDiv.append(colDiv);
+        	renderOneArtist(artists_obj.artists[artistIndex], rowDiv)
         }
 		$(".artistContainer").append(rowDiv);
     }
-}
+} //renderArtists
+/**
+ * @function renderOneArtist - renders the artist and their information on DOM
+ * 
+ * @param {object} artist - a single object from the artists_object
+ * 
+*/
+function renderOneArtist (artist, rowDiv) {
+	let name = artist.name;
+	let imageUrl = artist.images[2].url;
+	let id = artist.id;
+	let aTag = $("<a>", {
+	    "data-toggle": "collapse",
+	    "href": "#"
+	});
+	let colDiv = $('<div>',{
+	    'class': 'col-4'
+	});
+	let img = $('<div>',{
+	    css: {"background-image": `url(${imageUrl})`},
+	    'class': 'rounded-circle img-responsive w-100 circleBorder',
+	    id: id,
+		on: {
+			click: () => {
+				getLocalEvents(currentPos,name);
+				console.log(typeof name);
+			}
+		}
+	});
+	let nameDiv = $('<div>',{
+	    text: name,
+	    'class': 'text-center caption'
+	});
+	aTag.append(img, nameDiv)
+	colDiv.append(aTag);
+	rowDiv.append(colDiv);
+} //function renderOneArtist
+
 //-------------------------------------------------------------------------------
 /**
  * @function addClickHandlers
@@ -916,7 +913,7 @@ function searchArtists(input) {
 function getLocalEvents (coordObj, artist) {
 	$.ajax({
 		method: 'GET',
-		url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=' + latLngObj.lat +','+latLngObj.lng +'&radius=100&unit=miles&keyword='+ artist,
+		url: 'https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=' + coordObj.lat +','+coordObj.lng +'&radius=100&unit=miles&keyword='+ artist,
 		success:  response => {
 			console.log(response);
 		},
