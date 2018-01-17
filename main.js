@@ -7,7 +7,7 @@
 * Code to run when document has loaded
 */
 $(document).ready(function() {
-
+	getCurrentPos();
 });
 //-------------------------------------------------------------------------------
 /**
@@ -16,10 +16,6 @@ $(document).ready(function() {
  *
  * @Param {} user
 */
-$(document).ready(function() {
-	getCurrentPos();
-});
-/*************************************************************************************/
 //var artists = [];
 function getTopArtists(user) {
 	$.ajax({
