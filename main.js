@@ -298,7 +298,7 @@ function renderConcertInfoPage(artist, eventIndex) {
 		css: {
 			"background-image": `url(${artist.images[2].url})`,
 		},
-		'class': 'rounded-circle img-responsive circleBorder',
+		'class': 'rounded-circle img-responsive circleBorder mt-5',
 	});
 	let artistName = $('<div>', {
 		'class':'text-center caption',
