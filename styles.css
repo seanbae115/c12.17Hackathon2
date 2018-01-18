@@ -67,6 +67,7 @@ hr{
 }
 #hamburger {
   position:absolute;
+    float:right;
   right: 4vw;
-  top: 1vh;
+  top: 2vh;
 }
