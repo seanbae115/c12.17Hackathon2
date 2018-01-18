@@ -352,7 +352,7 @@ function renderConcertInfoPage(artist, eventIndex) {
 	setTimeout(function() {
 		makeMap(currentPos);
 		placeMarker(artist.events[eventIndex]);
-	},300);
+	},500);
 }
 /***********************************************************************************************************************
  * renderPlayBox
