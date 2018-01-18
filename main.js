@@ -73,7 +73,7 @@ function getCurrentPos() {
 		},
         {
 			enableHighAccuracy: true, // additional options
-			timeout: 1000,
+			timeout: 5000,
 		}
 	);
 }
@@ -416,7 +416,7 @@ function renderOneArtist (artist) {
 	let id = artist.id;
 	let aTag = $("<a>", {
 	    "data-toggle": "collapse",
-	    "href": `#collapse${artist.name}`
+	    "href": `#collapse${artist.id}`
 	});
 	artist.accordionCollapse = aTag;
 	let colDiv = $('<div>',{
@@ -428,9 +428,11 @@ function renderOneArtist (artist) {
 	    id: id,
 		on: {
 			click: () => {
-				getLocalEvents(currentPos,artist),
-				getRelatedArtists(id),
-        		changePlayBox(id)
+				if($('#collapse'+id).hasClass('show') === false){
+					getLocalEvents(currentPos,artist);
+				}
+				getRelatedArtists(id);
+    			changePlayBox(id);
 			}
 		}
 	});
@@ -450,7 +452,7 @@ function createInfoDropDown(artist){
     });
     artist.infoRow = fullDiv;
     let collapseDiv = $("<div>",{
-       id: `collapse${artist.name}`,
+       id: `collapse${artist.id}`,
        "class": "collapse hide",
         role: "tabpanel",
         "aria-labelledby": "headingOne",
@@ -600,7 +602,7 @@ function getRelatedArtists(artistID) {
             console.log(response);
             let relatedArtists = {};
             relatedArtists.artists = response.data;
-            populateRelatedArtists(relatedArtists)
+            populateRelatedArtists(relatedArtists);
         },
         error: function (response) {
             console.log('error');
@@ -641,16 +643,13 @@ function getLocalEvents (coordObj, artist) {
 			url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
 			success:  response => {
 				if(response.hasOwnProperty('_embedded')){
-					let eventArray = [];
-					response._embedded.events.forEach( (event) => {eventArray.push(event)} );
-					artist.events = eventArray;
+					artist.events = response._embedded.events
 				}
-				var oldRowParent = artist.infoRow.parent();
-				artist.infoRow.remove();
-			 	oldRowParent.append(createInfoDropDown(artist));
-			 	artist.row.find('.show').removeClass('show');
-			 	document.getElementById("collapse"+artist.name).classList.add('show');
-			 	//$("div[id='collapse"+artist.name+"']").addClass('show');
+				// var oldRowParent = artist.infoRow.parent();
+				// artist.infoRow.remove();
+			 // 	oldRowParent.append(createInfoDropDown(artist));
+			 	// artist.row.find('.show').removeClass('show');
+			 	// $('#collapse'+id).toggleClass('show');
 			},
 			error: response => {
 				console.log(response);
