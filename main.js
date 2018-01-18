@@ -132,11 +132,7 @@ function addModalClickHandler() {
 }
 
 function searchClickHandler() {
-    $('.search').on('click',function () {
-        console.log('clicked');
-        var input = $('.searchInput').val();
-        searchArtists(input);
-    })
+    $('.search').on('click', searchArtists);
 }
 /**
 * @function validateZip
@@ -618,21 +614,29 @@ function getRelatedArtists(artistID) {
  * @param: {string} input -
  */
 function searchArtists(input) {
-    let searchedArtist = {};
-    $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists",
-        dataType: 'json',
-        method: 'POST',
-        data: {
-            search_term: input,
-            limit: 10
-        },
-        success: function (response) {
-            searchedArtist.artists = response.data.items;
-            console.log(searchedArtist);
-        }
-    });
+    input = $('.searchInput').val();
+    if(input){
+        let searchedArtist = {};
+        $.ajax({
+            url: "http://spotify.iamandyong.com/search_artists",
+            dataType: 'json',
+            method: 'POST',
+            data: {
+                search_term: input,
+                limit: 10
+            },
+            success: function (response) {
+                searchedArtist.artists = response.data.items;
+                console.log(searchedArtist)
+                //renderSearchArtist(searchedArtist.artists[0])
+            }
+        });
+    }
 }
+
+/*function renderSearchArtist(artist) {
+    var firstArtist = $('#')
+}*/
 /***********************************************************************************************************************
  * getLocalEvents - ajax call for TicketMaster local search
  * @param: {object, string} coordObj, artist - object with 'lat' & 'lng' properties, each containing a string of numbers
