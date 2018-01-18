@@ -24,7 +24,7 @@ $(document).ready(function() {
     //renderArtists(example);
     getTopArtists();
     searchClickHandler();
-	addHomeClickHandlers();
+		addHomeClickHandlers();
 });
 /**
 * @function addHomeClicks
@@ -73,7 +73,7 @@ function getCurrentPos() {
 		},
         {
 			enableHighAccuracy: true, // additional options
-			timeout: 1000,
+			timeout: 7000,
 		}
 	);
 }
@@ -296,6 +296,7 @@ function fitMapBounds(marker) {
 */
 function renderConcertInfoPage(artist, eventIndex) {
 	$('.eventPopout > div').remove();
+	$('.eventPopoutContainer').slideToggle();
 	let artistDiv = $('<div>', {'class': 'col-4 artistPortrait'});
 	let artistImg = $('<img>', {
 		css: {
@@ -459,7 +460,7 @@ function createInfoDropDown(artist){
     let body = $("<div>", {
        "class": "card-body relArt"
     });
-    let calRow = renderEvents(artist.events);
+    let calRow = renderEvents(artist.events, artist);
     let relatedTitle = $("<p>",{
         "class": "text-center",
         text: "Related Artists"
@@ -513,7 +514,7 @@ function populateRelatedArtists(artistsObj){
  * renderOneEvent -
  *
  */
-function renderOneEvent(domElement, eventObj, indexNum){
+function renderOneEvent(domElement, eventObj, indexNum, artist){
     let date = eventObj.dates.start.localDate;
     let location = eventObj._embedded.venues[indexNum].name;
     let calendar = $("<div>",{
@@ -526,7 +527,12 @@ function renderOneEvent(domElement, eventObj, indexNum){
     });
     let venue = $("<div>",{
        "class": "col-9 venueName",
-       text: location
+       text: location,
+			 on : {
+				click: () => {
+					renderConcertInfoPage(artist, indexNum);
+				}
+			}
     });
     calendar.append(icon);
     domElement.append(calendar, venue);
@@ -535,14 +541,14 @@ function renderOneEvent(domElement, eventObj, indexNum){
  * renderEvents -
  *
  */
-function renderEvents(eventArray){
+function renderEvents(eventArray, artist){
     let calRow = $("<div>", {
         "class": "row mt-3"
     });
     let infoContain = $("<div>",{
         "class": "col-12"}).append($("<p>",{"class": "text-center", text: "Upcoming Events"}));
     let datesContain = $("<div>",{
-       "class": "row eventList"
+       "class": "row eventList",
     });
     calRow.append(infoContain);
     if (eventArray === undefined){
@@ -554,7 +560,7 @@ function renderEvents(eventArray){
     } else {
     	let maxEvents = eventArray.length > 4 ? 4 : eventArray.length;
         for (let eventIndex = 0; eventIndex < maxEvents; eventIndex++){
-            renderOneEvent(datesContain, eventArray[eventIndex], eventIndex);
+            renderOneEvent(datesContain, eventArray[eventIndex], eventIndex, artist);
         }
         return calRow.append(datesContain);
     }
