@@ -24,7 +24,7 @@ $(document).ready(function() {
     //renderArtists(example);
     getTopArtists();
     searchClickHandler();
-	addHomeClickHandlers();
+		addHomeClickHandlers();
 });
 /**
 * @function addHomeClicks
@@ -73,7 +73,7 @@ function getCurrentPos() {
 		},
         {
 			enableHighAccuracy: true, // additional options
-			timeout: 5000,
+			timeout: 7000,
 		}
 	);
 }
@@ -132,11 +132,7 @@ function addModalClickHandler() {
 }
 
 function searchClickHandler() {
-    $('.search').on('click',function () {
-        console.log('clicked');
-        var input = $('.searchInput').val();
-        searchArtists(input);
-    })
+    $('.search').on('click', searchArtists);
 }
 /**
 * @function validateZip
@@ -296,6 +292,7 @@ function fitMapBounds(marker) {
 */
 function renderConcertInfoPage(artist, eventIndex) {
 	$('.eventPopout > div').remove();
+	$('.eventPopoutContainer').slideToggle();
 	let artistDiv = $('<div>', {'class': 'col-4 artistPortrait'});
 	let artistImg = $('<img>', {
 		css: {
@@ -461,7 +458,7 @@ function createInfoDropDown(artist){
     let body = $("<div>", {
        "class": "card-body relArt"
     });
-    let calRow = renderEvents(artist.events);
+    let calRow = renderEvents(artist.events, artist);
     let relatedTitle = $("<p>",{
         "class": "text-center",
         text: "Related Artists"
@@ -515,7 +512,7 @@ function populateRelatedArtists(artistsObj){
  * renderOneEvent -
  *
  */
-function renderOneEvent(domElement, eventObj, indexNum){
+function renderOneEvent(domElement, eventObj, indexNum, artist){
     let date = eventObj.dates.start.localDate;
     let location = eventObj._embedded.venues[indexNum].name;
     let calendar = $("<div>",{
@@ -528,7 +525,12 @@ function renderOneEvent(domElement, eventObj, indexNum){
     });
     let venue = $("<div>",{
        "class": "col-9 venueName",
-       text: location
+       text: location,
+			 on : {
+				click: () => {
+					renderConcertInfoPage(artist, indexNum);
+				}
+			}
     });
     calendar.append(icon);
     domElement.append(calendar, venue);
@@ -537,14 +539,14 @@ function renderOneEvent(domElement, eventObj, indexNum){
  * renderEvents -
  *
  */
-function renderEvents(eventArray){
+function renderEvents(eventArray, artist){
     let calRow = $("<div>", {
         "class": "row mt-3"
     });
     let infoContain = $("<div>",{
         "class": "col-12"}).append($("<p>",{"class": "text-center", text: "Upcoming Events"}));
     let datesContain = $("<div>",{
-       "class": "row eventList"
+       "class": "row eventList",
     });
     calRow.append(infoContain);
     if (eventArray === undefined){
@@ -556,7 +558,7 @@ function renderEvents(eventArray){
     } else {
     	let maxEvents = eventArray.length > 4 ? 4 : eventArray.length;
         for (let eventIndex = 0; eventIndex < maxEvents; eventIndex++){
-            renderOneEvent(datesContain, eventArray[eventIndex], eventIndex);
+            renderOneEvent(datesContain, eventArray[eventIndex], eventIndex, artist);
         }
         return calRow.append(datesContain);
     }
@@ -614,21 +616,29 @@ function getRelatedArtists(artistID) {
  * @param: {string} input -
  */
 function searchArtists(input) {
-    let searchedArtist = {};
-    $.ajax({
-        url: "http://spotify.iamandyong.com/search_artists",
-        dataType: 'json',
-        method: 'POST',
-        data: {
-            search_term: input,
-            limit: 10
-        },
-        success: function (response) {
-            searchedArtist.artists = response.data.items;
-            console.log(searchedArtist);
-        }
-    });
+    input = $('.searchInput').val();
+    if(input){
+        let searchedArtist = {};
+        $.ajax({
+            url: "http://spotify.iamandyong.com/search_artists",
+            dataType: 'json',
+            method: 'POST',
+            data: {
+                search_term: input,
+                limit: 10
+            },
+            success: function (response) {
+                searchedArtist.artists = response.data.items;
+                console.log(searchedArtist)
+                //renderSearchArtist(searchedArtist.artists[0])
+            }
+        });
+    }
 }
+
+/*function renderSearchArtist(artist) {
+    var firstArtist = $('#')
+}*/
 /***********************************************************************************************************************
  * getLocalEvents - ajax call for TicketMaster local search
  * @param: {object, string} coordObj, artist - object with 'lat' & 'lng' properties, each containing a string of numbers
