@@ -655,10 +655,10 @@ function getLocalEvents (coordObj, artist) {
 				if(response.hasOwnProperty('_embedded')){
 					artist.events = response._embedded.events
 				}
-				// var oldRowParent = artist.infoRow.parent();
-				// artist.infoRow.remove();
-			 // 	oldRowParent.append(createInfoDropDown(artist));
-			 	// artist.row.find('.show').removeClass('show');
+				var oldRowParent = artist.infoRow.parent();
+				artist.infoRow.remove();
+			 	oldRowParent.append(createInfoDropDown(artist));
+			 	artist.infoRow.find('.hide').addClass('show');
 			 	// $('#collapse'+id).toggleClass('show');
 			},
 			error: response => {
