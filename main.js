@@ -331,6 +331,7 @@ function renderOneArtist (artist) {
 	    "data-toggle": "collapse",
 	    "href": `#collapse${artist.name}`
 	});
+	artist.accordionCollapse = aTag;
 	let colDiv = $('<div>',{
 	    'class': 'col-4'
 	});
@@ -358,6 +359,7 @@ function createInfoDropDown(artist){
     let fullDiv = $("<div>",{
        "class": "col-12 artistInfo",
     });
+    artist.infoRow = fullDiv;
     let collapseDiv = $("<div>",{
        id: `collapse${artist.name}`,
        "class": "collapse hide",
@@ -436,8 +438,8 @@ function renderOneEvent(domElement, eventObj, indexNum){
        "class": "col-9 venueName",
        text: location
     });
-    date.append(icon);
-    return domElement.append(calendar, venue);
+    calendar.append(icon);
+    domElement.append(calendar, venue);
 }
 /***********************************************************************************************************************
  * renderEvents -
@@ -450,7 +452,7 @@ function renderEvents(eventArray){
     let infoContain = $("<div>",{
         "class": "col-12"}).append($("<p>",{"class": "text-center", text: "Upcoming Events"}));
     let datesContain = $("<div>",{
-       "class": "row"
+       "class": "row eventList"
     });
     calRow.append(infoContain);
     if (eventArray === undefined){
@@ -459,10 +461,10 @@ function renderEvents(eventArray){
             text: "there are no events for this artist"
         }));
         return datesContain;
-    }
-    else{
-        for (let eventIndex = 0; eventIndex < 4; eventIndex++){
-            datesContain = renderOneEvent(datesContain, eventArray[eventIndex], eventIndex);
+    } else {
+    	let maxEvents = eventArray.length > 4 ? 4 : eventArray.length;
+        for (let eventIndex = 0; eventIndex < maxEvents; eventIndex++){
+            renderOneEvent(datesContain, eventArray[eventIndex], eventIndex);
         }
         return calRow.append(datesContain);
     }
@@ -555,7 +557,12 @@ function getLocalEvents (coordObj, artist) {
 					// $(p > '.artist').text('No local events scheduled at this time')
 					alert('No information to display')
 				}
-			 	createInfoDropDown(artist.row);
+				var oldRowParent = artist.infoRow.parent();
+				artist.infoRow.remove();
+			 	oldRowParent.append(createInfoDropDown(artist));
+			 	artist.row.find('.show').removeClass('show');
+			 	document.getElementById("collapse"+artist.name).classList.add('show');
+			 	//$("div[id='collapse"+artist.name+"']").addClass('show');
 			},
 			error: response => {
 				console.log(response);
