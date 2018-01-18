@@ -19,8 +19,9 @@ let distMatrix;
 $(document).ready(function() {
 	getCurrentPos();
 	$('.eventPopoutContainer').slideToggle();
-    renderArtists(example);
-    //getRelatedArtists("3WrFJ7ztbogyGnTHbHJFl2");
+	//renderPlayBox(example.artists[0].id);
+    //renderArtists(example);
+    getTopArtists();
     searchClickHandler();
 });
 /***********************************************************************
@@ -292,7 +293,36 @@ function renderConcertInfoPage(artist, eventIndex) {
 	makeMap(currentPos);
 	placeMarker(artist.events[eventIndex]);
 }
-
+/***********************************************************************************************************************
+ * renderPlayBox
+ * @param: element artist.id
+ * @calls: renderOneArtist
+ */
+function renderPlayBox(id) {
+    var rowDiv = $('<div>',{
+        'class': 'row mt-3 artistsRow accordion',
+        role: 'tablist'
+    });
+    var playBox = $('<iframe>',{
+        id: 'playBox',
+        src: "https://open.spotify.com/embed?uri=spotify:artist:"+id,
+        css: {
+            width: 340,
+            height: 80,
+            border: 0
+        }
+    });
+    rowDiv.append(playBox);
+    $(".artistContainer").append(rowDiv);
+}
+/***********************************************************************************************************************
+ * changePlayBox
+ * @param: element artist.id
+ * @calls: none
+ */
+function changePlayBox(id) {
+    $('#playBox').attr('src', "https://open.spotify.com/embed?uri=spotify:artist:"+id);
+}
 /***********************************************************************************************************************
  * renderArtists
  * @param: {object} artists_obj
@@ -340,7 +370,9 @@ function renderOneArtist (artist) {
 	    id: id,
 		on: {
 			click: () => {
-				getLocalEvents(currentPos,artist);
+				getLocalEvents(currentPos,artist),
+				getRelatedArtists(id),
+                changePlayBox(id)
 			}
 		}
 	});
@@ -472,15 +504,17 @@ function renderEvents(eventArray){
 *getTopArtists
 */
 function getTopArtists(user) {
-  let artists = [];
+  let topArtists = {};
 	$.ajax({
 		dataType: 'json',
-		url: 'https://api.spotify.com/v1/user/top/artists',
+		url: 'http://spotify.iamandyong.com/top/artists',
 		limit: 9,
 		method: 'GET',
 		success: function (response) {
-			console.log(response);
-			artists = (response.artists);
+			topArtists.artists = (response.data);
+            renderPlayBox(topArtists.artists[0].id);
+			renderArtists(topArtists);
+
         },
         error: function (response) {
             console.log('error');
@@ -528,7 +562,6 @@ function searchArtists(input) {
             limit: 10
         },
         success: function (response) {
-            console.log(response);
             searchedArtist.artists = response.data.items;
             console.log(searchedArtist);
         }

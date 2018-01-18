@@ -59,3 +59,7 @@ hr{
 #zipInputContainer {
   display:flex;
 }
+
+#playBox{
+  margin: 0 auto
+}
