@@ -344,8 +344,10 @@ function renderConcertInfoPage(artist, eventIndex) {
 		'class':'col-12',
 	});
 	$('.eventPopout').append(artistDiv, eventDiv, mapDiv);
-	makeMap(currentPos);
-	placeMarker(artist.events[eventIndex]);
+	setTimeout(function() {
+		makeMap(currentPos);
+		placeMarker(artist.events[eventIndex]);
+	},1000);
 }
 /***********************************************************************************************************************
  * renderPlayBox
