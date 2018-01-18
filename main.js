@@ -7,6 +7,7 @@
 */
 let map;
 let currentPos = null;
+let currentPosMarker = null;
 let tempPos = null;
 let geocoder;
 let distMatrix;
@@ -22,7 +23,28 @@ $(document).ready(function() {
     renderArtists(example);
     //getRelatedArtists("3WrFJ7ztbogyGnTHbHJFl2");
     searchClickHandler();
+		addHomeClickHandlers();
 });
+/**
+* @function addHomeClicks
+*	add click handlers on logo and on home button
+*	@param none
+* @calls handleHomeClick;
+*/
+function addHomeClickHandlers() {
+	$('#logo, #homeBtn').click(handleHomeClick);
+}
+
+/**
+* @function handleHomeClicks
+*	handles functions to be run when home in menu or logo is clicked.
+*	@param none
+*/
+function handleHomeClick() {
+	$('.eventPopoutContainer:visible').slideToggle();
+  $('.artistInfo:visible').slideToggle();
+}
+
 /***********************************************************************
 * @function getCurrentPos
 *  use google maps API to get current position. If it fails, prompt for and use ZIP code.
@@ -141,8 +163,9 @@ function makeMap(centerPoint = {lat: 33.6846, lng: -117.8265}) {
           position: centerPoint,
           map: map,
   });
+	currentPosMarker = marker;
 	var infowindow = new google.maps.InfoWindow({
-  	content:"Start Here!"
+  	content:"You're Here!"
   });
 	infowindow.open(map,marker);
 }
@@ -197,6 +220,11 @@ function getDistanceTime(origin, destination) {
                     distance: data.rows[0].elements[0].distance.text,
                     duration: data.rows[0].elements[0].duration.text,
                 }
+								let durationDiv = $('<div>', {
+									text: 'Drive time: '+ tempObj.duration,
+									'class': 'durationDiv',
+								});
+								$('.eventDiv').append(durationDiv);
             } else {
                 $('#errorModal .modal-body').text('DistMatrix failed: ' + status);
                 $('errorModal').modal('show');
@@ -219,45 +247,53 @@ function getDistanceTime(origin, destination) {
 /**
 * placeMarker - places down marker on map given obj with coordinates and event info
 * @param: {object}
-* @return
+* @calls fitMapBounds && getDistanceTime
 */
 function placeMarker(eventObj) {
+	var venue = {
+		lat: parseFloat(eventObj._embedded.venues[0].location.latitude),
+		lng: parseFloat(eventObj._embedded.venues[0].location.longitude),
+	};
 	var marker = new google.maps.Marker({
-		position: {
-			lat: parseFloat(eventObj._embedded.venues[0].location.latitude),
-			lng: parseFloat(eventObj._embedded.venues[0].location.longitude),
-		},
+		position: venue,
 		map: map,
 		title: eventObj.name,
 	});
 	var infoWindow = new google.maps.InfoWindow({
-		content: '<div> Date '+ eventObj.dates.start.localDate+'</div>'
+		content: '<div>'+ eventObj.dates.start.localDate+'</div>'+
+			'<div>'+eventObj._embedded.venues[0].name+'</div>',
 	});
-	marker.addListener('click', function(){
-		infoWindow.open(map, marker);
-	});
-	infoWindow.addListener('click', function() {
+	// marker.addListener('click', function(){
+	// 	infoWindow.open(map, marker);
+	// });
+	infoWindow.open(map, marker);
+	marker.addListener('click', function() {
 		window.open('https://www.google.com/maps/dir/?api=1&destination='+
 		eventObj._embedded.venues[0].location.latitude+','+
 		eventObj._embedded.venues[0].location.longitude)
 	});
+	fitMapBounds(marker);
+	getDistanceTime(currentPos, venue);
 }
-
-function fitMapBounds() {
-	var markers = [];
+/**
+* @function adjustZoom
+*	@param obj marker or array of markers.
+* adjust zoom of map based on markers currently on map. currently limited at 2
+*/
+function fitMapBounds(marker) {
+	var markers = [currentPosMarker, marker];
 	var bounds = new google.maps.LatLngBounds();
 	for (var i = 0; i < markers.length; i++) {
-			bounds.extend(markers[i].getPosition());
+		bounds.extend(markers[i].getPosition());
 	}
 	map.fitBounds(bounds);
 }
 /***********************************************************************************************************************
  * renderConcertInfoPage
  * @param: {object} artist_obj
- * @calls:
+ * @calls makeMap, placeMarker
 */
 function renderConcertInfoPage(artist, eventIndex) {
-	// getDistanceTime()
 	$('.eventPopout > div').remove();
 	let artistDiv = $('<div>', {'class': 'col-4 artistPortrait'});
 	let artistImg = $('<img>', {
@@ -270,8 +306,17 @@ function renderConcertInfoPage(artist, eventIndex) {
 		'class':'text-center caption',
 		'text': artist.name,
 	})
-	artistDiv.append(artistImg, artistName);
-	let eventDiv = $('<div>', {'class': 'col-8 card-body'});
+	let closeBtn = $('<button>', {
+		'class': 'btn btn-danger',
+		on: {
+			click: () => {
+				$('.eventPopoutContainer').slideToggle();
+			}
+		},
+		text: 'Close'
+	});
+	artistDiv.append(artistImg, artistName,closeBtn);
+	let eventDiv = $('<div>', {'class': 'col-8 card-body eventDiv'});
 	let eventVenue = $('<div>', {'class': 'eventVenue', text: artist.events[eventIndex]._embedded.venues[0].name});
 	let eventAddress = $('<div>', {'class': 'eventAddress', text: artist.events[eventIndex]._embedded.venues[0].address.line1});
 	let eventCity = $('<div>', {
@@ -282,8 +327,20 @@ function renderConcertInfoPage(artist, eventIndex) {
 		});
 	let eventDate = $('<div>', {'class': 'eventDate', 'text': artist.events[eventIndex].dates.start.localDime});
 	let eventTime = $('<div>', {'class': 'eventTime', 'text': 'StartTime: '+artist.events[eventIndex].dates.start.localTime});
-	let eventDistance =  $('<div>', {'class': 'eventDistance', 'text': 'Distance: '+artist.events[eventIndex]._embedded.venues[0].distance} +' miles');
-	eventDiv.append(eventVenue, eventAddress, eventCity, eventDate ,eventTime,eventDistance);
+	let eventDistance =  $('<div>', {'class': 'eventDistance', text: 'Distance: '+artist.events[eventIndex]._embedded.venues[0].distance +' miles'});
+	let ticketBtn = $('<button>', {
+		'class': 'btn btn-info',
+		on: {
+			click: () => {
+				window.open(artist.events[eventIndex].url);
+			}
+		},
+		text: 'Cost ' + checkPrice(),
+	});
+	function checkPrice() {
+		return (artist.events[eventIndex].priceRanges ? artist.events[eventIndex].priceRanges[0].min+' to '+artist.events[eventIndex].priceRanges[0].max +' '+ artist.events[eventIndex].priceRanges[0].currency : '?')
+	}
+	eventDiv.append(eventVenue, eventAddress, eventCity, eventDate ,eventTime, ticketBtn, eventDistance);
 	let mapDiv = $('<div>', {
 		'id':'map',
 		'class':'col-12',
@@ -341,6 +398,7 @@ function renderOneArtist (artist) {
 		on: {
 			click: () => {
 				getLocalEvents(currentPos,artist);
+				getRelatedArtists()
 			}
 		}
 	});
