@@ -24,7 +24,7 @@ $(document).ready(function() {
     //renderArtists(example);
     getTopArtists();
     searchClickHandler();
-		addHomeClickHandlers();
+	addHomeClickHandlers();
 });
 /**
 * @function addHomeClicks
@@ -430,7 +430,7 @@ function renderOneArtist (artist) {
 			click: () => {
 				getLocalEvents(currentPos,artist),
 				getRelatedArtists(id),
-        changePlayBox(id)
+        		changePlayBox(id)
 			}
 		}
 	});
@@ -457,15 +457,16 @@ function createInfoDropDown(artist){
         "data-parent": "#accordion"
     });
     let body = $("<div>", {
-       "class": "card-body"
+       "class": "card-body relArt"
     });
     let calRow = renderEvents(artist.events);
     let relatedTitle = $("<p>",{
         "class": "text-center",
         text: "Related Artists"
     });
-    let relatedArtists = populateRelatedArtists(example);
-    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"), relatedTitle, relatedArtists)));
+    // let relatedArtists = getRelatedArtists(artist.id);
+    // return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"), relatedTitle, relatedArtists)));
+    return fullDiv.append(collapseDiv.append(body.append(calRow, $("<hr>"), relatedTitle)));
 }
 /***********************************************************************************************************************
  *@function renderOneRelated
@@ -505,7 +506,7 @@ function populateRelatedArtists(artistsObj){
         let artistElement = renderOneRelated(artistsObj.artists[relatedIndex]);
         relatedRow.append(artistElement);
     }
-    return relatedRow;
+    $(".relArt").append(relatedRow);
 }
 
 /***********************************************************************************************************************
@@ -547,7 +548,7 @@ function renderEvents(eventArray){
     if (eventArray === undefined){
         datesContain.append($("<p>",{
             "class": "col-12",
-            text: "there are no events for this artist"
+            text: "There are no events for this artist"
         }));
         return datesContain;
     } else {
@@ -598,8 +599,8 @@ function getRelatedArtists(artistID) {
         success: function (response) {
             console.log(response);
             let relatedArtists = {};
-            relatedArtists.artists = response.data.items;
-            renderArtists(relatedArtists)
+            relatedArtists.artists = response.data;
+            populateRelatedArtists(relatedArtists)
         },
         error: function (response) {
             console.log('error');
@@ -643,9 +644,6 @@ function getLocalEvents (coordObj, artist) {
 					let eventArray = [];
 					response._embedded.events.forEach( (event) => {eventArray.push(event)} );
 					artist.events = eventArray;
-				} else {
-					// $(p > '.artist').text('No local events scheduled at this time')
-					alert('No information to display')
 				}
 				var oldRowParent = artist.infoRow.parent();
 				artist.infoRow.remove();
