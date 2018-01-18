@@ -6,6 +6,9 @@
 	<script src="https://code.jquery.com/jquery-3.2.1.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+	<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho">
+	</script>
 	<script src='main.js'></script>
 	<link rel="stylesheet" href="styles.css">
 	<meta charset="UTF-8">
@@ -14,39 +17,31 @@
 	<title>Document</title>
 </head>
 <body>
-	<nav id='navigation' class='navbar navbar-light bg-light'>
-		<a href="#" class='navbar-brand'>SpotiConnect</a>
-		<button class="navbar-toggler toggler-example" type="button" data-toggle="collapse" data-target="#navbarDropdown" aria-controls="navbarDropdown"
+	<nav id='navigation' class='navbar navbar-light'>
+		<a href="#" class='navbar-brand text-white' id='logo'>Spoti-Concert</a>
+		<!--<div class="input-group mb-3">-->
+			<!--<input type="text" class="form-control searchInput" placeholder="Artist's name" aria-label="Recipient's username" aria-describedby="basic-addon2">-->
+			<!--<div class="input-group-append search">-->
+				<!--<button class="btn btn-outline-info search text-white" type="button">Search</button>-->
+			<!--</div>-->
+		<!--</div>-->
+		<button id='hamburger' class="navbar-toggler toggler-example" type="button" data-toggle="collapse" data-target="#navbarDropdown" aria-controls="navbarDropdown"
         aria-expanded="false" aria-label="Toggle navigation"><span class="dark-blue-text"><i class="fa fa-bars fa-1x"></i></span></button>
 		<div class='collapse navbar-collapse' id='navbarDropdown'>
 			<ul class='navbar-nav mr-auto'>
 				<li class="nav-item">
-        	        <a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
+        	        <a class="nav-link" id='homeBtn' href="#">Home<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Change Location</a>
+                    <a class="nav-link" href="#" onclick='changePosition()'>Change Location</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Stuff</a>
-                </li>
+                <!--<li class="nav-item">-->
+                    <!--<a class="nav-link" href="#">Stuff</a>-->
+                <!--</li>-->
 			</ul>
 		</div>
 	</nav>
 	<div class='container-fluid artistContainer d-flex flex-column'>
-		<div class='row mt-3 artistsRow accordion' role='tablist'>
-			<div class='col-4'>
-				<img class="rounded-circle img-responsive w-100 circleBorder" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<img class="rounded-circle img-responsive w-100 circleBorder" src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-			<div class='col-4'>
-				<a data-toggle="collapse" href="#collapseOne">
-					<img class="rounded-circle img-responsive w-100 circleBorder" src="assets/images/logic-profile.jpg">
-					<div class='text-center caption'>Artist</div>
-				</a>
 			</div>
 		<div class='col-12 artistInfo'>
 			<div id="collapseOne" class="collapse hide" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
@@ -77,16 +72,9 @@
 				</div>
 			</div>
 		</div>
-		<div class='row mt-5 artistsRow accordion' role='tablist'>
-			<div class='col-4'>
-				<img class="rounded-circle img-responsive w-100 circleBorder"
-                     src="assets/images/logic-profile.jpg">
-				<div class='text-center caption'>Artist</div>
-			</div>
-		</div>
 		<div class='eventPopoutContainer'>
 			<div class='eventPopout'>
-				<div class='col-4 artistPortrait'>
+				<!-- <div class='col-4 artistPortrait'>
 					<img class="rounded-circle border border-primary img-responsive w-100" src="assets/images/logic-profile.jpg">
 					<div class='text-center caption'>Artist</div>
 				</div>
@@ -95,7 +83,7 @@
 					<div class='eventAddress'>999 Candycane Ln, Some City 99999</div>
 					<div class='eventDistance'>Distance: 100m</div>
 				</div>
-				<div class='col-12' id='map'></div>
+				<div class='col-12' id='map'></div> -->
 			</div>
 		</div>
 	</div>
@@ -109,12 +97,12 @@
 	        </button>
 	      </div>
 	      <div class="modal-body">
-					<div class="input-group mb-3" id='zipInputContainer'>
-					  <input type="text" class="form-control" placeholder="Your ZIP Code" aria-label="ZipCode" id='zipInput'>
-					  <div class="input-group-append">
-  				  	<button class="btn btn-outline-secondary" type="button" id='submitBtn'>Submit</button>
-  					</div>
-					</div>
+			<div class="input-group mb-3" id='zipInputContainer'>
+			  <input type="text" class="form-control" placeholder="Your ZIP Code" aria-label="ZipCode" id='zipInput'>
+			  <div class="input-group-append">
+			  	<button class="btn btn-outline-secondary" type="button" id='submitBtn'>Submit</button>
+				</div>
+			</div>
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -122,8 +110,6 @@
 	    </div>
 	  </div>
 	</div>
-	<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4S4d0uon3xNEPOH5gIg61s_540od18ho">
-  </script>
+
 </body>
 </html>
