@@ -58,6 +58,10 @@ hr{
 #zipInputContainer {
   display:flex;
 }
+
+#playBox{
+  margin: 0 auto
+}
 #navigation {
   background-color: #00bfcf;
 }
