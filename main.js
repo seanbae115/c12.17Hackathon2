@@ -284,6 +284,10 @@ function fitMapBounds(marker) {
 		bounds.extend(markers[i].getPosition());
 	}
 	map.fitBounds(bounds);
+	map.setCenter(bounds.getCenter());
+	setTimeout(function() {
+		map.setZoom(map.getZoom() - 1);
+	},500);
 }
 /***********************************************************************************************************************
  * renderConcertInfoPage
@@ -293,6 +297,7 @@ function fitMapBounds(marker) {
 function renderConcertInfoPage(artist, eventIndex) {
 	$('.eventPopout > div').remove();
 	$('.eventPopoutContainer').slideToggle();
+	$('html').animate({ scrollTop: 0 }, 1000);
 	let artistDiv = $('<div>', {'class': 'col-4 artistPortrait'});
 	let artistImg = $('<img>', {
 		css: {
@@ -323,7 +328,7 @@ function renderConcertInfoPage(artist, eventIndex) {
 			artist.events[eventIndex]._embedded.venues[0].state.stateCode+' '+
 			artist.events[eventIndex]._embedded.venues[0].postalCode,
 		});
-	let eventDate = $('<div>', {'class': 'eventDate', 'text': artist.events[eventIndex].dates.start.localDime});
+	let eventDate = $('<div>', {'class': 'eventDate', 'text': artist.events[eventIndex].dates.start.localDate});
 	let eventTime = $('<div>', {'class': 'eventTime', 'text': 'StartTime: '+artist.events[eventIndex].dates.start.localTime});
 	let eventDistance =  $('<div>', {'class': 'eventDistance', text: 'Distance: '+artist.events[eventIndex]._embedded.venues[0].distance +' miles'});
 	let ticketBtn = $('<button>', {
@@ -347,7 +352,7 @@ function renderConcertInfoPage(artist, eventIndex) {
 	setTimeout(function() {
 		makeMap(currentPos);
 		placeMarker(artist.events[eventIndex]);
-	},1000);
+	},500);
 }
 /***********************************************************************************************************************
  * renderPlayBox
@@ -409,6 +414,7 @@ function renderArtists(artists_obj) {
  * renderOneArtist - renders the artist and their information on DOM
  * @param: {object, DomElement} artist, rowDiv - a single object from the artists_object
 */
+let currentCollapsePanelID = null;
 function renderOneArtist (artist) {
 	let name = artist.name;
 	let imageUrl = artist.images[2].url;
@@ -426,12 +432,20 @@ function renderOneArtist (artist) {
 	    'class': 'rounded-circle img-responsive w-100 circleBorder',
 	    id: id,
 		on: {
-			click: () => {
+			click: function() {
+				// if('#collapse'+id !== currentCollapsePanelID) {
+				// 	$(currentCollapsePanelID).collapse();
+				// 	$('.relArt > .relatedArtistRow').remove();
+				// }
 				if($('#collapse'+id).hasClass('show') === false){
+					$(currentCollapsePanelID).collapse();
+					$('.relArt > .relatedArtistRow').remove();
 					getLocalEvents(currentPos,artist);
+					currentCollapsePanelID = $(this).parent().attr('href');
+					getRelatedArtists(id);
+	    		changePlayBox(id);
 				}
-				getRelatedArtists(id);
-    			changePlayBox(id);
+
 			}
 		}
 	});
@@ -516,7 +530,7 @@ function populateRelatedArtists(artistsObj){
  */
 function renderOneEvent(domElement, eventObj, indexNum, artist){
     let date = eventObj.dates.start.localDate;
-    let location = eventObj._embedded.venues[indexNum].name;
+    let location = eventObj._embedded.venues[0].name;
     let calendar = $("<div>",{
        "class": "col-3 dates",
         text: date
@@ -603,7 +617,6 @@ function getRelatedArtists(artistID) {
             artist_id: artistID
         },
         success: function (response) {
-            console.log(response);
             let relatedArtists = {};
             relatedArtists.artists = response.data;
             populateRelatedArtists(relatedArtists);
@@ -652,7 +665,7 @@ function getLocalEvents (coordObj, artist) {
 		$.ajax({
 			method: 'GET',
 	        dataType: 'json',
-			url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=100&unit=miles&keyword=${artist.name}&classificationName=music`,
+			url: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=L3aWCQHOVxRR9AVMMbIEd8XXZC6DXiH8&latlong=${coordObj.lat},${coordObj.lng}&radius=1000&unit=miles&keyword=${artist.name}&classificationName=music`,
 			success:  response => {
 				if(response.hasOwnProperty('_embedded')){
 					artist.events = response._embedded.events
